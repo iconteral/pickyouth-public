@@ -3,7 +3,7 @@
 ##  About us
 #### - What is PY2019?
 Pickyouth, a.k.a.PY2019, is a amazing gal gala held by YG evey year. This year, we'd like to announce that we are priviliged to hold it in YG in 20 July,2019 
-#### - How to ger start?
+#### - How to get start?
 Buy your ticket first.
 
 ## About this program
