@@ -1,0 +1,18 @@
+{
+    "status": "ok",
+    "ticket": {
+        "uid": "xxx",
+        "phone_number": "xxx",
+        "bought_date": "xx",
+        "used": false,
+        "used_date": null,
+
+        "food": [1, 2, 3, 5],
+        "food_used": false,
+        "food_used_date": null,
+        
+        "special_service": [1, 2, 3, 5],
+        "special_service_used": false,
+        "special_service_used_date": null
+    }
+}
