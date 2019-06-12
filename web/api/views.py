@@ -59,14 +59,14 @@ def create_ticket(request, phone_number):
             break
     
     ticket = Ticket(uid=uid, phone_number=phone_number)
-    ticket.save()
-    data = {
-        'status': 'ok',
-        'message': 'ticked generated.'
-        'data': {
-            'uid': uid
-        }
-    }
+#    ticket.save()
+#    data = {
+#        'status': 'ok',
+#        'message': 'ticked generated.'
+#        'data': {
+#            'uid': uid
+#        }
+#    }
 
 def ticket_image(request, image_id):
     

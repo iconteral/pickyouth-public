@@ -80,7 +80,7 @@ DATABASES = {
         'NAME': 'py',
         'USER': 'py',
         'PASSWORD': 'qweasdzxc',
-        'HOST': 'localhost',
+        'HOST': '127.0.0.1',
         'PORT': '3306',
     }
 }
@@ -108,9 +108,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = 'zh-cn'
+LANGUAGE_CODE = 'zh-Hant'
 
-TIME_ZONE = 'UTC+8'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
