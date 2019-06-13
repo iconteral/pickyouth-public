@@ -12,13 +12,13 @@ from api.models import Ticket
 def now():
     return datetime.datetime.utcnow().replace(tzinfo=pytz.utc).astimezone(pytz.timezone('Asia/Shanghai'))
 
-def auth(request, uid):
+
+def auth(request):
     data = {}
     if request.user.is_authenticated:
-        return check_ticket(request, uid)
+        return True
     else:
-        data['Error'] = 'permission denied'
-        return JsonResponse(data)
+        return False
 
 
 def generate_uid():
@@ -27,71 +27,84 @@ def generate_uid():
     u += 'pickyouth'
     return hashlib.sha224(u.encode('utf-8')).hexdigest()
 
+
 def ticket_info(request, uid):
     '''Return ticket info. but not check in'''
     data = {}
-    try:
-        ticket = Ticket.objects.get(uid=uid)
-    except:
-        data['status'] = 'failed'
-        data['message'] = 'uid not found.'
-        return JsonResponse(data)
+    global auth
+    if auth():
+        try:
+            ticket = Ticket.objects.get(uid=uid)
+        except:
+            data['status'] = 'failed'
+            data['message'] = 'uid not found.'
+            return JsonResponse(data)
     
-    data['status'] = 'ok'
-    data['message'] = 'ok'
-    data['data'] = {
-        'uid': ticket.uid,
-        'bought_date': ticket.bought_date,
-        'phone_number': ticket.phone_number,
-        'used': ticket.used,
-        'used_date': ticket.used_date,
-    }
-
+        data['status'] = 'ok'
+        data['message'] = 'ok'
+        data['data'] = {
+            'uid': ticket.uid,
+            'bought_date': ticket.bought_date,
+            'phone_number': ticket.phone_number,
+            'used': ticket.used,
+            'used_date': ticket.used_date,
+        }
+    else:
+        data['Error'] = 'permission denied'
     return JsonResponse(data)
+
 
 def check_ticket(request, uid):
     '''Check in and mark as invalid'''
     data = {}
+    global auth
+    if auth(request):
+        try:
+            ticket = Ticket.objects.get(uid=uid)
+        except:
+            data['status'] = 'failed'
+            data['message'] = 'uid not found.'
+            return JsonResponse(data)
+        print('ok')
 
-    try:
-        ticket = Ticket.objects.get(uid=uid)
-    except:
-        data['status'] = 'failed'
-        data['message'] = 'uid not found.'
-        return JsonResponse(data)
-    print('ok')
-
-    if ticket.used:
-        data['status'] = 'failed'
-        data['message'] = 'ticket has already been used.'
+        if ticket.used:
+            data['status'] = 'failed'
+            data['message'] = 'ticket has already been used.'
+        else:
+            ticket.used = True
+            ticket.used_date = now()
+            ticket.save()
+            data['status'] = 'ok'
+            data['message'] = 'ticket has been checked successfully.'
     else:
-        ticket.used = True
-        ticket.used_date = now()
-        ticket.save()
-        data['status'] = 'ok'
-        data['message'] = 'ticket has been checked successfully.'
+        data['Error'] = 'permission denied'
     return JsonResponse(data)
 
 def create_ticket(request, phone_number):
-    # 验重
-    while True:
-        uid = generate_uid()
-        try:
-            Ticket.objects.get(uid=uid)
-        except:
-            break
-    
-    ticket = Ticket(uid=uid, phone_number=phone_number, bought_date=now())
-    ticket.save()
-    data = {
-        'status': 'ok',
-        'message': 'ticked generated.',
-        'data': {
-            'uid': uid,
-        }
-    }
+    global auth
+    if auth():
+        # 验重
+        while True:
+            uid = generate_uid()
+            try:
+                Ticket.objects.get(uid=uid)
+            except:
+                break
 
-    return JsonResponse(data)
+        ticket = Ticket(uid=uid, phone_number=phone_number, bought_date=now())
+        ticket.save()
+        data = {
+            'status': 'ok',
+            'message': 'ticked generated.',
+            'data': {
+                'uid': uid,
+            }
+        }
+        return JsonResponse(data)
+    else:
+        data = {}
+        data['Error'] = 'permission denied'
+        return JsonResponse(data)
 
 def ticket_image(request, uid):
     
@@ -105,4 +118,3 @@ def ticket_image(request, uid):
     response = HttpResponse(content_type="image/jpeg")
     img.save(response, 'JPEG')
     return response
-    
