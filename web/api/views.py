@@ -1,5 +1,6 @@
 import uuid
 import datetime
+import hashlib
 
 import qrcode
 
@@ -9,7 +10,10 @@ from django.http import HttpResponse, JsonResponse
 from api.models import Ticket
 
 def generate_uid():
-    return ''.join([str(f) for f in uuid.uuid4().fields])[-9:]
+    u = ''.join([str(f) for f in uuid.uuid4().fields])
+    u += str(timezone.now())
+    u += 'pickyouth'
+    return hashlib.sha224(u.encode('utf-8')).hexdigest()
 
 def ticket_info(request, uid):
     data = {}
@@ -59,21 +63,23 @@ def create_ticket(request, phone_number):
             break
     
     ticket = Ticket(uid=uid, phone_number=phone_number)
-#    ticket.save()
-#    data = {
-#        'status': 'ok',
-#        'message': 'ticked generated.'
-#        'data': {
-#            'uid': uid
-#        }
-#    }
+    ticket.save()
+    data = {
+        'status': 'ok',
+        'message': 'ticked generated.',
+        'data': {
+            'uid': uid
+        }
+    }
 
-def ticket_image(request, image_id):
+def ticket_image(request, uid):
     
     try:
-        ticket = Ticket.objects.get(image_id=image_id)
+        ticket = Ticket.objects.get(uid=uid)
     except DoesNotExist:
         return HttpResponse('ticket not found.')
     
+    img = qrcode.make(uid)
 
+    return HttpResponse(img, content_type="image/jpeg")
     
