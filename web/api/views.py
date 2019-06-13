@@ -19,7 +19,7 @@ def ticket_info(request, uid):
     data = {}
     try:
         ticket = Ticket.objects.get(uid=uid)
-    except DoesNotExist:
+    except:
         data['status'] = 'failed'
         data['message'] = 'uid not found.'
         return JsonResponse(data)
@@ -40,7 +40,7 @@ def check_ticket(request, uid):
     data = {}
     try:
         ticket = Ticket.objects.get(uid=uid)
-    except DoesNotExist:
+    except:
         data['status'] = 'failed'
         data['message'] = 'uid not found'
         return JsonResponse(data)
@@ -60,9 +60,10 @@ def create_ticket(request, phone_number):
     # 验重
     while True:
         uid = generate_uid()
-        if Ticket.objects.get(uid=uid).length == 0:
+        try:
+            Ticket.objects.get(uid=uid)
+        except:
             break
-
 
     ticket = Ticket(uid=uid, phone_number=phone_number, bought_date=timezone.now())
     ticket.save()
@@ -74,14 +75,18 @@ def create_ticket(request, phone_number):
         }
     }
 
+    return JsonResponse(data)
+
 def ticket_image(request, uid):
     
     try:
         ticket = Ticket.objects.get(uid=uid)
-    except DoesNotExist:
+    except:
         return HttpResponse('ticket not found.')
     
     img = qrcode.make(uid)
+    
+    print(uid)
 
     return HttpResponse(img, content_type="image/jpeg")
     
