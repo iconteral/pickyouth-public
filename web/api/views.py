@@ -5,13 +5,13 @@ import qrcode
 
 from django.utils import timezone
 from django.http import HttpResponse, JsonResponse
-
 from api.models import Ticket
 
 def generate_uid():
     return ''.join([str(f) for f in uuid.uuid4().fields])[-9:]
 
 def ticket_info(request, uid):
+    '''Return ticket info. but not check in'''
     data = {}
     try:
         ticket = Ticket.objects.get(uid=uid)
@@ -32,6 +32,7 @@ def ticket_info(request, uid):
     return JsonResponse(data)
 
 def check_ticket(request, uid):
+    '''Check in and mark as invalid'''
     data = {}
     try:
         ticket = Ticket.objects.get(uid=uid)
@@ -49,7 +50,7 @@ def check_ticket(request, uid):
         ticket.save()
         data['status'] = 'ok'
         data['message'] = 'ticket has been checked successfully.'
-    return JsonResponse
+    return JsonResponse(data)
 
 def create_ticket(request, phone_number):
     # 验重
@@ -58,15 +59,15 @@ def create_ticket(request, phone_number):
         if Ticket.objects.get(uid=uid).length == 0:
             break
     
-    ticket = Ticket(uid=uid, phone_number=phone_number)
-#    ticket.save()
-#    data = {
-#        'status': 'ok',
-#        'message': 'ticked generated.'
-#        'data': {
-#            'uid': uid
-#        }
-#    }
+    ticket = Ticket(uid=uid, phone_number=phone_number, bought_date=timezone.now())
+    ticket.save()
+    data = {
+        'status': 'ok',
+        'message': 'ticked generated.',
+        'data': {
+            'uid': uid,
+        }
+    }
 
 def ticket_image(request, image_id):
     
