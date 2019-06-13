@@ -12,6 +12,15 @@ from api.models import Ticket
 def now():
     return datetime.datetime.utcnow().replace(tzinfo=pytz.utc).astimezone(pytz.timezone('Asia/Shanghai'))
 
+def auth(request, uid):
+    data = {}
+    if request.user.is_authenticated:
+        return check_ticket(request, uid)
+    else:
+        data['Error'] = 'permission denied'
+        return JsonResponse(data)
+
+
 def generate_uid():
     u = ''.join([str(f) for f in uuid.uuid4().fields])
     u += str(timezone.now())
@@ -43,6 +52,7 @@ def ticket_info(request, uid):
 def check_ticket(request, uid):
     '''Check in and mark as invalid'''
     data = {}
+
     try:
         ticket = Ticket.objects.get(uid=uid)
     except:
@@ -50,7 +60,7 @@ def check_ticket(request, uid):
         data['message'] = 'uid not found.'
         return JsonResponse(data)
     print('ok')
-    
+
     if ticket.used:
         data['status'] = 'failed'
         data['message'] = 'ticket has already been used.'
