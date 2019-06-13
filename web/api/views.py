@@ -7,7 +7,6 @@ import qrcode
 
 from django.utils import timezone
 from django.http import HttpResponse, JsonResponse
-
 from api.models import Ticket
 
 def now():
@@ -20,7 +19,7 @@ def generate_uid():
     return hashlib.sha224(u.encode('utf-8')).hexdigest()
 
 def ticket_info(request, uid):
-    print(now())
+    '''Return ticket info. but not check in'''
     data = {}
     try:
         ticket = Ticket.objects.get(uid=uid)
@@ -42,6 +41,7 @@ def ticket_info(request, uid):
     return JsonResponse(data)
 
 def check_ticket(request, uid):
+    '''Check in and mark as invalid'''
     data = {}
     try:
         ticket = Ticket.objects.get(uid=uid)
@@ -77,7 +77,7 @@ def create_ticket(request, phone_number):
         'status': 'ok',
         'message': 'ticked generated.',
         'data': {
-            'uid': uid
+            'uid': uid,
         }
     }
 
