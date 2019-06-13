@@ -2,9 +2,8 @@ from django.db import models
 
 class Ticket(models.Model):
 
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     uid = models.CharField(max_length=200)
-    image_id = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=11)
     bought_date = models.DateTimeField(auto_now=True)
     used = models.BooleanField(default=False)
