@@ -17,3 +17,10 @@ Buy your ticket first.
 This program includs two parts:
 - [scannerapp(Client)](https://github.com/abrasumente233/pickyouth/tree/master/scannerapp "scannerapp(Client)")
 - [PYServer(Server)](https://github.com/abrasumente233/pickyouth/tree/master/pyserver "PYServer(Servers)")
+
+
+##Thanks
+I'd like to express my greatest gratitudes to the followings. Without them, we can't live till tomorrow.
+- Python Software Foundation
+- YG
+- the Old devil Organization
