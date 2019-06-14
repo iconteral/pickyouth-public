@@ -3,10 +3,10 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.csrf import csrf_exempt
 
-@csrf_exempt
+#@csrf_exempt
 def log_in(request):
-    username = request.POST['username']
-    password = request,POST['password']
+    username = request.POST.get('username')
+    password = request.POST.get('password')
     data = {}
     if authenticate(request, username=username, password=password):
         user = authenticate(username=username, password=password)
@@ -17,7 +17,7 @@ def log_in(request):
         data['Error'] = 'incorrect username/password'
     return JsonResponse(data)
 
-@csrf_exempt
+#@csrf_exempt
 def log_out(request):
     data = {}
     if request.user.is_authenticated:
