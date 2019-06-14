@@ -20,7 +20,7 @@ This program includs two parts:
 
 
 ## Thanks
-I'd like to express my greatest gratitudes to the followings. Without them, we can't live till tomorrow.
+I'd like to express my greatest gratitude to the followings. Without them, we can't live till tomorrow.
 - Python Software Foundation
 - YG
 - the Old devil Organization
