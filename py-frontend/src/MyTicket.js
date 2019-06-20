@@ -1,14 +1,10 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
+import React from 'react';
+import ReactDOM from 'react-dom';
 
 
 class MyTicket extends React.Component {
     constructor(props) {
-        super(props)
-    
-        this.state = {
-             
-        }
+        super(props);
     }
 
     render() {
@@ -16,7 +12,9 @@ class MyTicket extends React.Component {
             <div>
                 
             </div>
-        )
+        );
     }
     
 }
+
+export default MyTicket;
