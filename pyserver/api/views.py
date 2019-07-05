@@ -112,3 +112,13 @@ def api_login(request):
         return HttpResponse('ok')
     else:
         return HttpResponse('wrong.')
+
+@login_required
+def used_count(request):
+    '''return population'''
+    pass
+
+@login_required
+def used():
+    '''post back used ticket list'''
+    pass
