@@ -9,5 +9,4 @@ urlpatterns = [
     path('ticket/img/<str:uid>', views.ticket_image, name='ticket_image'),
     path('login', views.api_login, name='login'),
     path('ticket/used_count', views.used_count, name='used_count')
-    path('ticket/used', views.used, name='used')
 ]
