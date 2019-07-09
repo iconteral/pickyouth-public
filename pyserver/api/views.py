@@ -64,6 +64,13 @@ def check_ticket(request, uid):
         ticket.save()
         data['status'] = 'ok'
         data['message'] = 'ticket has been checked successfully.'
+    data['data'] = {
+        'uid': ticket.uid,
+        'bought_date': ticket.bought_date,
+        'phone_number': ticket.phone_number,
+        'used': ticket.used,
+        'used_date': ticket.used_date,
+    }
     return JsonResponse(data)
 
 
