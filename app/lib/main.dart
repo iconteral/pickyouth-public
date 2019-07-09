@@ -339,7 +339,7 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
   TicketBloc(this.loginClientBloc) {
     loginBlocSubscription = loginClientBloc.state.listen((state) {
       if (state is LoggedIn) {
-        client = (state as LoggedIn).client;
+        client = state.client;
       }
     });
   }
