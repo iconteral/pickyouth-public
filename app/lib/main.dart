@@ -29,9 +29,35 @@ void main() => runApp(BlocProviderTree(
     ));
 
 class LoginPage extends StatelessWidget {
+  _loginListener(BuildContext context, LoginState state) {
+    ScaffoldState scaffoldState = Scaffold.of(context);
+    if (state is LoginFailed) {
+      scaffoldState.hideCurrentSnackBar();
+      scaffoldState.showSnackBar(SnackBar(
+        content: Text(state.errorMessage),
+        backgroundColor: Colors.red,
+      ));
+    }
+    if (state is LoggedIn) {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => ScanPage()));
+    }
+  }
+
+  _ticketListener(BuildContext context, TicketState state) {
+    ScaffoldState scaffoldState = Scaffold.of(context);
+    if (state is InvalidTicketEvent) {
+      scaffoldState.hideCurrentSnackBar();
+      scaffoldState.showSnackBar(SnackBar(
+        content: Text("票信息错误，请重试"),
+      ));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final loginBloc = BlocProvider.of<LoginBloc>(context);
+    final loginBloc2 = BlocProvider.of<LoginBloc>(context);
+    final ticketBloc2 = BlocProvider.of<TicketBloc>(context);
 
     return Scaffold(
         appBar: AppBar(title: Text("Reply 2019 检票")),
@@ -41,32 +67,11 @@ class LoginPage extends StatelessWidget {
           ),
           blocListeners: <BlocListener>[
             BlocListener(
-                bloc: loginBloc,
-                listener: (BuildContext context, LoginState state) {
-                  ScaffoldState scaffoldState = Scaffold.of(context);
-                  if (state is LoginFailed) {
-                    scaffoldState.hideCurrentSnackBar();
-                    scaffoldState.showSnackBar(SnackBar(
-                      content: Text(state.errorMessage),
-                      backgroundColor: Colors.red,
-                    ));
-                  }
-                  if (state is LoggedIn) {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => ScanPage()));
-                  }
-                }),
+                bloc: loginBloc2,
+                listener: (context, state) => _loginListener(context, state)),
             BlocListener(
-              bloc: ticketBloc,
-              listener: (BuildContext context, TicketState state) {
-                ScaffoldState scaffoldState = Scaffold.of(context);
-                if (state is InvalidTicketEvent) {
-                  scaffoldState.hideCurrentSnackBar();
-                  scaffoldState.showSnackBar(SnackBar(
-                    content: Text("票信息错误，请重试"),
-                  ));
-                }
-              },
+              bloc: ticketBloc2,
+              listener: (context, state) => _ticketListener(context, state),
             )
           ],
         ));
