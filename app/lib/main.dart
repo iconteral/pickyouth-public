@@ -1,15 +1,24 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:bloc/bloc.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:http/http.dart';
 import 'package:flutter/services.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cookie_jar/cookie_jar.dart';
+import 'package:dio/dio.dart';
+import 'package:path_provider/path_provider.dart';
+
+// _parseAndDecode(String response) {
+// return jsonDecode(response);
+// }
+
+// parseJson(String text) {
+// return compute(_parseAndDecode, text);
+// }
 
 final loginBloc = LoginBloc();
 final ticketBloc = TicketBloc(loginBloc);
@@ -134,28 +143,12 @@ class ScanPage extends StatelessWidget {
           BlocBuilder<TicketEvent, TicketState>(
             bloc: _ticketBloc,
             builder: (BuildContext context, TicketState state) {
-              // return Expanded(
-              //   flex: 3,
-              //   child: ListView.separated(
-              //     padding: EdgeInsets.symmetric(vertical: 16.0),
-              //     itemCount: state.ticketList.length + 1,
-              //     separatorBuilder: (BuildContext context, int index) =>
-              //         const Divider(),
-              //     itemBuilder: (BuildContext context, int index) {
-              //       return _buildTicket(context, index);
-              //     },
-              //   ),
-              // );
               return Expanded(
                 flex: 3,
                 child: CarouselSlider(
                   enableInfiniteScroll: false,
                   items: state.ticketList.map((ticket) {
-                    // return Builder(
-                    // builder: (BuildContext context) {
                     return _buildTicketCard(context, ticket);
-                    // },
-                    // );
                   }).toList()
                     ..add(_buildAddTicketManually(context)),
                 ),
@@ -241,7 +234,7 @@ class LoginInitial extends LoginState {
 }
 
 class LoggedIn extends LoginState {
-  final Client client;
+  final Dio client;
 
   LoggedIn(this.client);
 }
@@ -270,7 +263,7 @@ class LoginPressedEvent extends LoginEvent {
 }
 
 class LoggedInEvent extends LoginEvent {
-  final Client client;
+  final Dio client;
 
   LoggedInEvent(this.client);
 }
@@ -313,13 +306,19 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       yield LoggedIn(event.client);
     }
     if (event is LoginPressedEvent) {
-      Client client = Client();
+      BaseOptions options = BaseOptions(baseUrl: "http://39.105.70.152:8080");
+      Dio client = new Dio(options);
+      var dataPath = await getApplicationDocumentsDirectory();
+      var cookieJar = PersistCookieJar(dir: dataPath.path);
+      client.interceptors.add(CookieManager(cookieJar));
       if (event.username == "" || event.password == "") {
         this.dispatch(LoginFailedEvent(errorMessage: "不能为空"));
       } else {
-        var response = await client.post('http://39.105.70.152/login',
-            body: {'username': event.username, 'password': event.password});
-        if (response.body == 'wrong.') {
+        var postData = {"username": event.username, "password": event.password};
+        FormData formData = FormData.from(postData);
+        print(postData);
+        Response response = await client.post("/login", data: formData);
+        if (response.data.toString() == 'wrong.') {
           this.dispatch(LoginFailedEvent(errorMessage: "信息错误"));
         } else {
           this.dispatch(LoggedInEvent(client));
@@ -333,7 +332,7 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
   @override
   TicketState get initialState => TicketState();
   StreamSubscription loginBlocSubscription;
-  Client client;
+  Dio client;
 
   final LoginBloc loginClientBloc;
   TicketBloc(this.loginClientBloc) {
@@ -386,11 +385,12 @@ class Ticket extends Equatable {
     return uid;
   }
 
-  Future<void> init(Client client) async {
-    var url = 'http://39.105.70.152/ticket/check/' + uid;
+  Future<void> init(Dio client) async {
+    var url = '/ticket/check/' + uid;
     var response = await client.get(url);
-    var ticketInfo = jsonDecode(response.body)['data'];
+    var ticketInfo = jsonDecode(response.data.toString());
     if (ticketInfo['status'] == 'ok') {
+      ticketInfo = ticketInfo['data'];
       phoneNumber = ticketInfo['phone_number'];
       checkedDate = DateTime.parse(ticketInfo['used_date']);
       isChecked = ticketInfo['used'];
