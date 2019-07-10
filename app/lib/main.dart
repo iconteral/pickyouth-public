@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:bloc/bloc.dart';
@@ -12,6 +13,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:audioplayer/audioplayer.dart';
 
 // _parseAndDecode(String response) {
 // return jsonDecode(response);
@@ -23,6 +25,55 @@ import 'package:timeago/timeago.dart' as timeago;
 
 final loginBloc = LoginBloc();
 final ticketBloc = TicketBloc(loginBloc);
+
+class SoundPlayer {
+  AudioPlayer audioPlugin = AudioPlayer();
+  String wrongUri;
+  String checkedUri;
+  String scannedUri;
+  void init() {
+    _init();
+  }
+
+  Future<Null> _init() async {
+    //TODO: fix this rubbish
+    final ByteData wrongData = await rootBundle.load('wrong.mp3');
+    final ByteData checkedData = await rootBundle.load('checked.mp3');
+    final ByteData scannedData = await rootBundle.load('scanned.mp3');
+    var tempDir = await getTemporaryDirectory();
+    File wrongFile = File('${tempDir.path}/wrong.mp3');
+    File checkedFile = File('${tempDir.path}/checked.mp3');
+    File scannedFile = File('${tempDir.path}/scanned.mp3');
+    await wrongFile.writeAsBytes(wrongData.buffer.asUint8List(), flush: true);
+    await checkedFile.writeAsBytes(checkedData.buffer.asUint8List(),
+        flush: true);
+    await scannedFile.writeAsBytes(scannedData.buffer.asUint8List(),
+        flush: true);
+    wrongUri = wrongFile.uri.toString();
+    checkedUri = checkedFile.uri.toString();
+    scannedUri = scannedFile.uri.toString();
+  }
+
+  void playWrong() {
+    if (wrongUri != null) {
+      audioPlugin.play(wrongUri, isLocal: true);
+    }
+  }
+
+  void playChecked() {
+    if (wrongUri != null) {
+      audioPlugin.play(wrongUri, isLocal: true);
+    }
+  }
+
+  void playScanned() {
+    if (wrongUri != null) {
+      audioPlugin.play(wrongUri, isLocal: true);
+    }
+  }
+}
+
+final player = SoundPlayer()..init();
 void main() async {
   timeago.setLocaleMessages("zh_CN", timeago.ZhCnMessages());
   runApp(BlocProviderTree(
@@ -150,7 +201,9 @@ class ScanPage extends StatelessWidget {
               return Expanded(
                 flex: 3,
                 child: CarouselSlider(
-                  initialPage: state.ticketList.length,
+                  initialPage: state.ticketList.length == 0
+                      ? 0
+                      : state.ticketList.length - 1,
                   enableInfiniteScroll: false,
                   items: state.ticketList.map((ticket) {
                     return _buildTicketCard(context, ticket);
@@ -376,6 +429,7 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
       yield newState;
     }
     if (event is ScannedEvent) {
+      player.playScanned();
       Ticket ticket = Ticket(event.data);
       if (!currentState.isDuplicated(uid: event.data)) {
         await ticket.init(this.client);
@@ -415,6 +469,11 @@ class Ticket extends Equatable {
       checkedDate = DateTime.parse(ticketInfo['used_date']);
       isChecked = ticketInfo['used'];
       isVaild = true;
+    }
+    if (ticketInfo['message'] != 'ticket has been checked succesfully') {
+      player.playWrong();
+    } else {
+      player.playChecked();
     }
   }
 }
