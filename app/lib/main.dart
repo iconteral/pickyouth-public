@@ -127,7 +127,9 @@ class LoginPage extends StatelessWidget {
         appBar: AppBar(title: Text("Reply 2019 检票")),
         body: BlocListenerTree(
           child: Center(
-            child: LoginForm(),
+            child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4.0),
+                child: LoginForm()),
           ),
           blocListeners: <BlocListener>[
             BlocListener(
