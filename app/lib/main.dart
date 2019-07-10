@@ -11,6 +11,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 // _parseAndDecode(String response) {
 // return jsonDecode(response);
@@ -22,20 +23,23 @@ import 'package:path_provider/path_provider.dart';
 
 final loginBloc = LoginBloc();
 final ticketBloc = TicketBloc(loginBloc);
-void main() => runApp(BlocProviderTree(
-      blocProviders: [
-        BlocProvider<LoginBloc>(
-          builder: (BuildContext context) => loginBloc,
-        ),
-        BlocProvider<TicketBloc>(
-          builder: (BuildContext context) => ticketBloc,
-        )
-      ],
-      child: MaterialApp(
-        title: 'Pickyouth 检票系统',
-        home: LoginPage(),
+void main() async {
+  timeago.setLocaleMessages("zh_CN", timeago.ZhCnMessages());
+  runApp(BlocProviderTree(
+    blocProviders: [
+      BlocProvider<LoginBloc>(
+        builder: (BuildContext context) => loginBloc,
       ),
-    ));
+      BlocProvider<TicketBloc>(
+        builder: (BuildContext context) => ticketBloc,
+      )
+    ],
+    child: MaterialApp(
+      title: 'Pickyouth 检票系统',
+      home: LoginPage(),
+    ),
+  ));
+}
 
 class LoginPage extends StatelessWidget {
   _loginListener(BuildContext context, LoginState state) {
@@ -146,6 +150,7 @@ class ScanPage extends StatelessWidget {
               return Expanded(
                 flex: 3,
                 child: CarouselSlider(
+                  initialPage: state.ticketList.length,
                   enableInfiniteScroll: false,
                   items: state.ticketList.map((ticket) {
                     return _buildTicketCard(context, ticket);
@@ -171,6 +176,10 @@ class ScanPage extends StatelessWidget {
   }
 
   Widget _buildTicketCard(BuildContext context, Ticket ticket) {
+    DateTime usedTime =
+        DateTime.parse(ticket.checkedDate.add(Duration(hours: 8)).toString());
+    print(usedTime);
+    print(DateTime.now());
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 0.0),
       child: Row(
@@ -180,7 +189,11 @@ class ScanPage extends StatelessWidget {
               Text('#' + ticket.uid,
                   style: DefaultTextStyle.of(context)
                       .style
-                      .apply(fontSizeFactor: 3.0))
+                      .apply(fontSizeFactor: 0.7)),
+              Text("检票时间：" +
+                  timeago.format(usedTime,
+                      locale: 'zh_CN', clock: DateTime.now())),
+              Text("手机号：" + ticket.phoneNumber)
             ],
           )
         ],
@@ -352,21 +365,27 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
   @override
   Stream<TicketState> mapEventToState(TicketEvent event) async* {
     if (event is AddTicketEvent) {
-      List<Ticket> newList = List.from(currentState.ticketList)
-        ..add(event.ticket);
+      List<Ticket> newList = List.from(currentState.ticketList);
+      int ticketIndex = newList.indexOf(event.ticket);
+      if (ticketIndex == -1) {
+        newList.add(event.ticket);
+      } else {
+        newList.add(newList.removeAt(ticketIndex));
+      }
       TicketState newState = TicketState(ticketList: newList);
       yield newState;
     }
     if (event is ScannedEvent) {
-      if (event.data.length == 8 &&
-          !currentState.isDuplicated(uid: event.data)) {
-        Ticket ticket = Ticket(event.data);
+      Ticket ticket = Ticket(event.data);
+      if (!currentState.isDuplicated(uid: event.data)) {
         await ticket.init(this.client);
         if (ticket.isVaild) {
           this.dispatch(AddTicketEvent(ticket));
         } else {
           this.dispatch(InvalidTicketEvent());
         }
+      } else {
+        this.dispatch(AddTicketEvent(ticket));
       }
     }
   }
@@ -379,7 +398,7 @@ class Ticket extends Equatable {
   DateTime checkedDate;
   bool isVaild = false;
   Ticket(this.uid, {this.phoneNumber, this.isChecked, this.checkedDate})
-      : super([uid, phoneNumber, isChecked, checkedDate]);
+      : super([uid]);
   @override
   String toString() {
     return uid;
@@ -388,14 +407,14 @@ class Ticket extends Equatable {
   Future<void> init(Dio client) async {
     var url = '/ticket/check/' + uid;
     var response = await client.get(url);
-    var ticketInfo = jsonDecode(response.data.toString());
-    if (ticketInfo['status'] == 'ok') {
+    var ticketInfo = response.data;
+    if (ticketInfo['message'] == 'ticket has been checked successfully.' ||
+        ticketInfo['message'] == 'ticket has already been used.') {
       ticketInfo = ticketInfo['data'];
       phoneNumber = ticketInfo['phone_number'];
       checkedDate = DateTime.parse(ticketInfo['used_date']);
       isChecked = ticketInfo['used'];
-    } else {
-      isVaild = false;
+      isVaild = true;
     }
   }
 }
