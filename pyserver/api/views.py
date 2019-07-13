@@ -136,4 +136,4 @@ def used(request):
     for user in tickets.filter(used=1):
         data[count] = user.uid
         count += 1
-    return HttpResponse(data)
+    return JsonResponse(data)
