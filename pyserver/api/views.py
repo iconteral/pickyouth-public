@@ -129,11 +129,13 @@ def used_count(request):
 
 @login_required
 def used(request):
-    '''post back used ticket list'''
-    tickets = Ticket.objects.all()
-    data = {}
-    count = 0
-    for user in tickets.filter(used=1):
-        data[count] = user.uid
-        count += 1
-    return JsonResponse(data)
+    '''post back used ticket list and sort by date'''
+    tickets = Ticket.objects.all().filter(used=1)
+    data = []
+    times = []
+    for ticket in tickets:
+        times.append(ticket.used_date)
+    times.sort()
+    for t in times:
+        data.append(tickets.filter(used_date=t).get().uid)
+    return JsonResponse(data,safe = False)
