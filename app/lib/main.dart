@@ -8,6 +8,11 @@ import 'package:timeago/timeago.dart' as timeago;
 import 'package:app/blocs/login_bolc.dart';
 import 'package:app/blocs/ticket_bloc.dart';
 import 'package:app/sound_player.dart';
+import 'package:app/events/login_events.dart';
+import 'package:app/events/ticket_events.dart';
+import 'package:app/states/ticket_states.dart';
+import 'package:app/states/login_states.dart';
+import 'package:app/ticket.dart';
 
 final loginBloc = LoginBloc();
 final ticketBloc = TicketBloc(loginBloc);

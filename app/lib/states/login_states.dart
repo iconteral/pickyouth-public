@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+
 class LoginState {}
 
 class LoginInitial extends LoginState {

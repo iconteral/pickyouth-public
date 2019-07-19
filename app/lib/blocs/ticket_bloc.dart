@@ -1,12 +1,16 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:async';
+
+import 'package:app/sound_player.dart';
+import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 
-import 'package:app/events/login_events.dart';
 import 'package:app/states/login_states.dart';
 import 'package:app/blocs/login_bolc.dart';
 import 'package:app/events/ticket_events.dart';
 import 'package:app/states/ticket_states.dart';
 import 'package:app/ticket.dart';
+
+final player = SoundPlayer(['assets/scanned.mp3'])..init();
 
 class TicketBloc extends Bloc<TicketEvent, TicketState> {
   @override
@@ -43,7 +47,7 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
       yield newState;
     }
     if (event is ScannedEvent) {
-      player.playScanned();
+      player.play(0);
       Ticket ticket = Ticket(event.data);
       if (!currentState.isDuplicated(uid: event.data)) {
         await ticket.init(this.client);

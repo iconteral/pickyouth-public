@@ -1,5 +1,8 @@
+import 'package:app/sound_player.dart';
 import 'package:equatable/equatable.dart';
 import 'package:dio/dio.dart';
+
+final player = SoundPlayer(['assets/wrong.mp3', 'assets/checked.mp3']);
 
 class Ticket extends Equatable {
   String uid;
@@ -27,9 +30,9 @@ class Ticket extends Equatable {
       isVaild = true;
     }
     if (ticketInfo['message'] != 'ticket has been checked succesfully') {
-      player.playWrong();
+      player.play(0);
     } else {
-      player.playChecked();
+      player.play(1);
     }
   }
 }
