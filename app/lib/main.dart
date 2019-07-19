@@ -121,7 +121,28 @@ class ScanPage extends StatelessWidget {
         children: <Widget>[
           Expanded(
             flex: 7,
-            child: QRScanner(),
+            child: Stack(
+              children: <Widget>[
+                QRScanner(),
+                Positioned(
+                    bottom: 16.0,
+                    right: 32.0,
+                    child: IconButton(
+                      icon: Icon(Icons.flash_on),
+                      onPressed: () {},
+                    )),
+                Positioned(
+                  bottom: 16.0,
+                  right: 16.0,
+                  child: IconButton(
+                    icon: Icon(Icons.add_box),
+                    onPressed: () {
+                      _showAlert(context);
+                    },
+                  ),
+                )
+              ],
+            ),
           ),
           BlocBuilder<TicketEvent, TicketState>(
             bloc: _ticketBloc,
@@ -137,17 +158,16 @@ class ScanPage extends StatelessWidget {
                       _ticketBloc.dispatch(TicketPageChanged(page));
                     },
                     items: state.ticketList.map((ticket) {
-                      // return _buildTicketCard(context, ticket);
+                      final String background = ticket.justChecked
+                          ? "assets/successful.png"
+                          : "assets/warning.png";
                       return Stack(
                         children: <Widget>[
-                          Image.asset("assets/warning.png"),
+                          Image.asset(background),
                           _buildTicketCard(context, ticket)
                         ],
                       );
-                    }).toList()
-                    // ..add(_buildAddTicketManually(context)),
-                    )
-                  ..animateToPage(state.ticketList.length - 1),
+                    }).toList()),
               );
             },
           )
@@ -156,14 +176,30 @@ class ScanPage extends StatelessWidget {
     );
   }
 
-  Widget _buildAddTicketManually(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        children: <Widget>[Icon(Icons.add_circle), Text("输入编号检票")],
-      ),
-    );
+  _showAlert(BuildContext context) {
+    TextEditingController controller = TextEditingController();
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("票号"),
+            content: TextField(
+              controller: controller,
+            ),
+            actions: <Widget>[
+              MaterialButton(
+                child: Text("检"),
+                onPressed: () {
+                  if (controller.text.trim().length != 0) {
+                    Navigator.of(context).pop();
+                    BlocProvider.of<TicketBloc>(context)
+                        .dispatch(AddTicketEvent(Ticket(controller.text)));
+                  }
+                },
+              )
+            ],
+          );
+        });
   }
 
   Widget _buildTicketCard(BuildContext context, Ticket ticket) {

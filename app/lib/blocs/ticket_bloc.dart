@@ -10,7 +10,8 @@ import 'package:app/events/ticket_events.dart';
 import 'package:app/states/ticket_states.dart';
 import 'package:app/ticket.dart';
 
-final player = SoundPlayer(['assets/scanned.mp3', 'assets/wrong.mp3'])..init();
+final player = SoundPlayer(
+    ['assets/scanned.mp3', 'assets/wrong.mp3', 'assets/checked.mp3']);
 
 class TicketBloc extends Bloc<TicketEvent, TicketState> {
   @override
@@ -36,33 +37,38 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
   @override
   Stream<TicketState> mapEventToState(TicketEvent event) async* {
     if (event is AddTicketEvent) {
-      List<Ticket> newList = List.from(currentState.ticketList);
-      int ticketIndex = newList.indexOf(event.ticket);
-      if (ticketIndex == -1) {
-        newList.add(event.ticket);
+      await event.ticket.init(client);
+      if (event.ticket.isVaild) {
+        if (event.ticket.justChecked) {
+          player.play(2);
+        }
+        int ticketIndex = currentState.ticketList.indexOf(event.ticket);
+        if (ticketIndex == currentState.ticketList.length - 1) {
+          List<Ticket> newList = List.from(currentState.ticketList);
+          if (ticketIndex == -1) {
+            newList.add(event.ticket);
+          } else {
+            newList.add(newList.removeAt(ticketIndex));
+          }
+          TicketState newState = TicketState(
+              ticketList: newList, currentTicket: currentState.currentTicket);
+
+          yield newState;
+        }
       } else {
-        newList.add(newList.removeAt(ticketIndex));
+        player.play(1);
       }
-      TicketState newState = TicketState(ticketList: newList);
-      yield newState;
     }
     if (event is ScannedEvent) {
       player.play(0);
-      Ticket ticket = Ticket(event.data);
-      int index = currentState.find(ticket);
-
-      if (index != currentState.ticketList.length - 1) {
-        await ticket.init(this.client);
-        if (ticket.isVaild) {
-          this.dispatch(AddTicketEvent(ticket));
-        } else {
-          player.play(1);
-        }
+      if (event.data.trim().length != 0) {
+        dispatch(AddTicketEvent(Ticket(event.data)));
       }
     }
     if (event is TicketPageChanged) {
       yield TicketState(
-          ticketList: currentState.ticketList, currentPage: event.currentPage);
+          ticketList: currentState.ticketList,
+          currentTicket: event.currentPage);
     }
   }
 }

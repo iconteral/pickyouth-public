@@ -10,6 +10,7 @@ class Ticket extends Equatable {
   bool isChecked;
   DateTime checkedDate;
   bool isVaild = false;
+  bool justChecked = false;
   Ticket(this.uid, {this.phoneNumber, this.isChecked, this.checkedDate})
       : super([uid]);
   @override
@@ -33,6 +34,7 @@ class Ticket extends Equatable {
       player.play(0);
     } else {
       player.play(1);
+      justChecked = true;
     }
   }
 }
