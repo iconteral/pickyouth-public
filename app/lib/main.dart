@@ -14,7 +14,6 @@ import 'package:app/events/torch_events.dart';
 import 'package:app/events/ticket_events.dart';
 import 'package:app/states/ticket_states.dart';
 import 'package:app/states/login_states.dart';
-import 'package:app/states/torch_states.dart';
 import 'package:app/ticket.dart';
 
 void main() async {
