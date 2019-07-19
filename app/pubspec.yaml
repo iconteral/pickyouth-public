@@ -34,6 +34,8 @@ dependencies:
   path_provider: ^1.1.2
   timeago: ^2.0.17
   audioplayer: ^0.5.2
+  wakelock: ^0.1.2
+  torch: ^0.1.1
 
 dev_dependencies:
   flutter_test:

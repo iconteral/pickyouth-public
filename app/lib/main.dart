@@ -4,19 +4,24 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:wakelock/wakelock.dart';
 
 import 'package:app/blocs/login_bolc.dart';
 import 'package:app/blocs/ticket_bloc.dart';
+import 'package:app/blocs/torch_bloc.dart';
 import 'package:app/events/login_events.dart';
+import 'package:app/events/torch_events.dart';
 import 'package:app/events/ticket_events.dart';
 import 'package:app/states/ticket_states.dart';
 import 'package:app/states/login_states.dart';
+import 'package:app/states/torch_states.dart';
 import 'package:app/ticket.dart';
 
 void main() async {
   timeago.setLocaleMessages("zh_CN", timeago.ZhCnMessages());
   final _loginBloc = LoginBloc();
   final _ticketBloc = TicketBloc(_loginBloc);
+  final _torchBloc = TorchBloc();
   runApp(BlocProviderTree(
     blocProviders: [
       BlocProvider<LoginBloc>(
@@ -24,6 +29,9 @@ void main() async {
       ),
       BlocProvider<TicketBloc>(
         builder: (BuildContext context) => _ticketBloc,
+      ),
+      BlocProvider<TorchBloc>(
+        builder: (BuildContext context) => _torchBloc,
       )
     ],
     child: MaterialApp(
@@ -117,6 +125,7 @@ class ScanPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final TicketBloc _ticketBloc = BlocProvider.of<TicketBloc>(context);
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Column(
         children: <Widget>[
           Expanded(
@@ -126,15 +135,20 @@ class ScanPage extends StatelessWidget {
                 QRScanner(),
                 Positioned(
                     bottom: 16.0,
-                    right: 32.0,
+                    left: 16.0,
                     child: IconButton(
+                      splashColor: Colors.blue,
+                      color: Colors.blue,
                       icon: Icon(Icons.flash_on),
-                      onPressed: () {},
+                      onPressed: () {
+                        BlocProvider.of<TorchBloc>(context).dispatch(Toggle());
+                      },
                     )),
                 Positioned(
                   bottom: 16.0,
                   right: 16.0,
                   child: IconButton(
+                    color: Colors.blue,
                     icon: Icon(Icons.add_box),
                     onPressed: () {
                       _showAlert(context);
@@ -184,6 +198,7 @@ class ScanPage extends StatelessWidget {
           return AlertDialog(
             title: Text("票号"),
             content: TextField(
+              keyboardType: TextInputType.number,
               controller: controller,
             ),
             actions: <Widget>[
@@ -240,13 +255,26 @@ class _QRScannerState extends State<QRScanner> {
   QRViewController controller;
   @override
   Widget build(BuildContext context) {
-    return QRView(
-      key: qrKey,
-      onQRViewCreated: _onQRViewCreated,
+    return BlocListener(
+      bloc: BlocProvider.of<TorchBloc>(context),
+      listener: (context, state) {
+        controller.flipFlash();
+      },
+      child: QRView(
+        key: qrKey,
+        onQRViewCreated: _onQRViewCreated,
+      ),
     );
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    Wakelock.disable();
+  }
+
   void _onQRViewCreated(QRViewController controller) {
+    Wakelock.enable();
     final channel = controller.channel;
     controller.init(qrKey);
     this.controller = controller;

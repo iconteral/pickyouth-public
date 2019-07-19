@@ -30,10 +30,7 @@ class Ticket extends Equatable {
       isChecked = ticketInfo['used'];
       isVaild = true;
     }
-    if (ticketInfo['message'] != 'ticket has been checked succesfully') {
-      player.play(0);
-    } else {
-      player.play(1);
+    if (ticketInfo['message'] == 'ticket has been checked succesfully') {
       justChecked = true;
     }
   }

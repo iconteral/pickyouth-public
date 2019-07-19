@@ -43,7 +43,8 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
           player.play(2);
         }
         int ticketIndex = currentState.ticketList.indexOf(event.ticket);
-        if (ticketIndex == currentState.ticketList.length - 1) {
+        if (ticketIndex == -1 ||
+            ticketIndex != currentState.ticketList.length - 1) {
           List<Ticket> newList = List.from(currentState.ticketList);
           if (ticketIndex == -1) {
             newList.add(event.ticket);
