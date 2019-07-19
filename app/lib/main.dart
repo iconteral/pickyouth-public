@@ -1,79 +1,20 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:bloc/bloc.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:equatable/equatable.dart';
 import 'package:flutter/services.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:cookie_jar/cookie_jar.dart';
-import 'package:dio/dio.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
-import 'package:audioplayer/audioplayer.dart';
 
-// _parseAndDecode(String response) {
-// return jsonDecode(response);
-// }
-
-// parseJson(String text) {
-// return compute(_parseAndDecode, text);
-// }
+import 'package:app/blocs/login_bolc.dart';
+import 'package:app/blocs/ticket_bloc.dart';
+import 'package:app/sound_player.dart';
 
 final loginBloc = LoginBloc();
 final ticketBloc = TicketBloc(loginBloc);
 
-class SoundPlayer {
-  AudioPlayer audioPlugin = AudioPlayer();
-  String wrongUri;
-  String checkedUri;
-  String scannedUri;
-  void init() {
-    _init();
-  }
-
-  Future<Null> _init() async {
-    //TODO: fix this rubbish
-    final ByteData wrongData = await rootBundle.load('wrong.mp3');
-    final ByteData checkedData = await rootBundle.load('checked.mp3');
-    final ByteData scannedData = await rootBundle.load('scanned.mp3');
-    var tempDir = await getTemporaryDirectory();
-    File wrongFile = File('${tempDir.path}/wrong.mp3');
-    File checkedFile = File('${tempDir.path}/checked.mp3');
-    File scannedFile = File('${tempDir.path}/scanned.mp3');
-    await wrongFile.writeAsBytes(wrongData.buffer.asUint8List(), flush: true);
-    await checkedFile.writeAsBytes(checkedData.buffer.asUint8List(),
-        flush: true);
-    await scannedFile.writeAsBytes(scannedData.buffer.asUint8List(),
-        flush: true);
-    wrongUri = wrongFile.uri.toString();
-    checkedUri = checkedFile.uri.toString();
-    scannedUri = scannedFile.uri.toString();
-  }
-
-  void playWrong() {
-    if (wrongUri != null) {
-      audioPlugin.play(wrongUri, isLocal: true);
-    }
-  }
-
-  void playChecked() {
-    if (wrongUri != null) {
-      audioPlugin.play(wrongUri, isLocal: true);
-    }
-  }
-
-  void playScanned() {
-    if (wrongUri != null) {
-      audioPlugin.play(wrongUri, isLocal: true);
-    }
-  }
-}
-
-final player = SoundPlayer()..init();
+final player = SoundPlayer(
+    ["assets/scanned.mp3", 'assets/checked.mp3', 'assets/wrong.mp3'])
+  ..init();
 void main() async {
   timeago.setLocaleMessages("zh_CN", timeago.ZhCnMessages());
   runApp(BlocProviderTree(
@@ -86,7 +27,7 @@ void main() async {
       )
     ],
     child: MaterialApp(
-      title: 'Pickyouth 检票系统',
+      title: 'Reply 2019 检票系统',
       home: LoginPage(),
     ),
   ));
@@ -203,15 +144,25 @@ class ScanPage extends StatelessWidget {
               return Expanded(
                 flex: 3,
                 child: CarouselSlider(
-                  initialPage: state.ticketList.length == 0
-                      ? 0
-                      : state.ticketList.length - 1,
-                  enableInfiniteScroll: false,
-                  items: state.ticketList.map((ticket) {
-                    return _buildTicketCard(context, ticket);
-                  }).toList()
-                    ..add(_buildAddTicketManually(context)),
-                ),
+                    enlargeCenterPage: true,
+                    viewportFraction: 0.9,
+                    initialPage: state.currentTicket,
+                    enableInfiniteScroll: false,
+                    onPageChanged: (page) {
+                      ticketBloc.dispatch(TicketPageChanged(page));
+                    },
+                    items: state.ticketList.map((ticket) {
+                      // return _buildTicketCard(context, ticket);
+                      return Stack(
+                        children: <Widget>[
+                          Image.asset("assets/warning.png"),
+                          _buildTicketCard(context, ticket)
+                        ],
+                      );
+                    }).toList()
+                    // ..add(_buildAddTicketManually(context)),
+                    )
+                  ..animateToPage(state.ticketList.length - 1),
               );
             },
           )
@@ -289,193 +240,5 @@ class _QRScannerState extends State<QRScanner> {
         default:
       }
     });
-  }
-}
-
-class LoginState {}
-
-class LoginInitial extends LoginState {
-  @override
-  String toString() {
-    return "Login init";
-  }
-}
-
-class LoggedIn extends LoginState {
-  final Dio client;
-
-  LoggedIn(this.client);
-}
-
-class LoginFailed extends LoginState {
-  final String errorMessage;
-
-  LoginFailed({this.errorMessage = "登录失败"});
-}
-
-class LoginEvent extends Equatable {
-  LoginEvent([List props = const []]) : super(props);
-}
-
-class LoginFailedEvent extends LoginEvent {
-  final String errorMessage;
-
-  LoginFailedEvent({this.errorMessage = "登录失败"}) : super([errorMessage]);
-}
-
-class LoginPressedEvent extends LoginEvent {
-  final String username;
-  final String password;
-
-  LoginPressedEvent(this.username, this.password);
-}
-
-class LoggedInEvent extends LoginEvent {
-  final Dio client;
-
-  LoggedInEvent(this.client);
-}
-
-class TicketState {
-  final List<Ticket> _ticketList;
-  List<Ticket> get ticketList => _ticketList;
-  TicketState({ticketList = const <Ticket>[]}) : this._ticketList = ticketList;
-  bool isDuplicated({String uid}) {
-    return _ticketList.any((ticket) => ticket.toString() == uid);
-  }
-}
-
-class TicketEvent extends Equatable {
-  TicketEvent([List props = const []]) : super(props);
-}
-
-class AddTicketEvent extends TicketEvent {
-  final Ticket ticket;
-  AddTicketEvent(this.ticket) : super([ticket]);
-}
-
-class ScannedEvent extends TicketEvent {
-  final String data;
-  ScannedEvent(this.data) : super([data]);
-}
-
-class InvalidTicketEvent extends TicketEvent {}
-
-class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  @override
-  LoginState get initialState => LoginInitial();
-
-  @override
-  Stream<LoginState> mapEventToState(LoginEvent event) async* {
-    if (event is LoginFailedEvent) {
-      yield LoginFailed(errorMessage: event.errorMessage);
-    }
-    if (event is LoggedInEvent) {
-      yield LoggedIn(event.client);
-    }
-    if (event is LoginPressedEvent) {
-      BaseOptions options = BaseOptions(baseUrl: "http://39.105.70.152:8080");
-      Dio client = new Dio(options);
-      var dataPath = await getApplicationDocumentsDirectory();
-      var cookieJar = PersistCookieJar(dir: dataPath.path);
-      client.interceptors.add(CookieManager(cookieJar));
-      if (event.username == "" || event.password == "") {
-        this.dispatch(LoginFailedEvent(errorMessage: "不能为空"));
-      } else {
-        var postData = {"username": event.username, "password": event.password};
-        FormData formData = FormData.from(postData);
-        print(postData);
-        Response response = await client.post("/login", data: formData);
-        if (response.data.toString() == 'wrong.') {
-          this.dispatch(LoginFailedEvent(errorMessage: "信息错误"));
-        } else {
-          this.dispatch(LoggedInEvent(client));
-        }
-      }
-    }
-  }
-}
-
-class TicketBloc extends Bloc<TicketEvent, TicketState> {
-  @override
-  TicketState get initialState => TicketState();
-  StreamSubscription loginBlocSubscription;
-  Dio client;
-
-  final LoginBloc loginClientBloc;
-  TicketBloc(this.loginClientBloc) {
-    loginBlocSubscription = loginClientBloc.state.listen((state) {
-      if (state is LoggedIn) {
-        client = state.client;
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    loginBlocSubscription.cancel();
-    super.dispose();
-  }
-
-  @override
-  Stream<TicketState> mapEventToState(TicketEvent event) async* {
-    if (event is AddTicketEvent) {
-      List<Ticket> newList = List.from(currentState.ticketList);
-      int ticketIndex = newList.indexOf(event.ticket);
-      if (ticketIndex == -1) {
-        newList.add(event.ticket);
-      } else {
-        newList.add(newList.removeAt(ticketIndex));
-      }
-      TicketState newState = TicketState(ticketList: newList);
-      yield newState;
-    }
-    if (event is ScannedEvent) {
-      player.playScanned();
-      Ticket ticket = Ticket(event.data);
-      if (!currentState.isDuplicated(uid: event.data)) {
-        await ticket.init(this.client);
-        if (ticket.isVaild) {
-          this.dispatch(AddTicketEvent(ticket));
-        } else {
-          this.dispatch(InvalidTicketEvent());
-        }
-      } else {
-        this.dispatch(AddTicketEvent(ticket));
-      }
-    }
-  }
-}
-
-class Ticket extends Equatable {
-  String uid;
-  String phoneNumber;
-  bool isChecked;
-  DateTime checkedDate;
-  bool isVaild = false;
-  Ticket(this.uid, {this.phoneNumber, this.isChecked, this.checkedDate})
-      : super([uid]);
-  @override
-  String toString() {
-    return uid;
-  }
-
-  Future<void> init(Dio client) async {
-    var url = '/ticket/check/' + uid;
-    var response = await client.get(url);
-    var ticketInfo = response.data;
-    if (ticketInfo['message'] == 'ticket has been checked successfully.' ||
-        ticketInfo['message'] == 'ticket has already been used.') {
-      ticketInfo = ticketInfo['data'];
-      phoneNumber = ticketInfo['phone_number'];
-      checkedDate = DateTime.parse(ticketInfo['used_date']);
-      isChecked = ticketInfo['used'];
-      isVaild = true;
-    }
-    if (ticketInfo['message'] != 'ticket has been checked succesfully') {
-      player.playWrong();
-    } else {
-      player.playChecked();
-    }
   }
 }
