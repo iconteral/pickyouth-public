@@ -53,9 +53,6 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
         await ticket.init(this.client);
         if (ticket.isVaild) {
           this.dispatch(AddTicketEvent(ticket));
-        } else {
-          this.dispatch(InvalidTicketEvent());
-        }
       } else {
         this.dispatch(AddTicketEvent(ticket));
       }

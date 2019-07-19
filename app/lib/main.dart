@@ -7,28 +7,24 @@ import 'package:timeago/timeago.dart' as timeago;
 
 import 'package:app/blocs/login_bolc.dart';
 import 'package:app/blocs/ticket_bloc.dart';
-import 'package:app/sound_player.dart';
 import 'package:app/events/login_events.dart';
 import 'package:app/events/ticket_events.dart';
 import 'package:app/states/ticket_states.dart';
 import 'package:app/states/login_states.dart';
 import 'package:app/ticket.dart';
 
-final loginBloc = LoginBloc();
-final ticketBloc = TicketBloc(loginBloc);
+final _loginBloc = LoginBloc();
+final _ticketBloc = TicketBloc(_loginBloc);
 
-final player = SoundPlayer(
-    ["assets/scanned.mp3", 'assets/checked.mp3', 'assets/wrong.mp3'])
-  ..init();
 void main() async {
   timeago.setLocaleMessages("zh_CN", timeago.ZhCnMessages());
   runApp(BlocProviderTree(
     blocProviders: [
       BlocProvider<LoginBloc>(
-        builder: (BuildContext context) => loginBloc,
+        builder: (BuildContext context) => _loginBloc,
       ),
       BlocProvider<TicketBloc>(
-        builder: (BuildContext context) => ticketBloc,
+        builder: (BuildContext context) => _ticketBloc,
       )
     ],
     child: MaterialApp(
@@ -39,7 +35,7 @@ void main() async {
 }
 
 class LoginPage extends StatelessWidget {
-  _loginListener(BuildContext context, LoginState state) {
+  void _loginListener(BuildContext context, LoginState state) {
     ScaffoldState scaffoldState = Scaffold.of(context);
     if (state is LoginFailed) {
       scaffoldState.hideCurrentSnackBar();
@@ -54,20 +50,9 @@ class LoginPage extends StatelessWidget {
     }
   }
 
-  _ticketListener(BuildContext context, TicketState state) {
-    ScaffoldState scaffoldState = Scaffold.of(context);
-    if (state is InvalidTicketEvent) {
-      scaffoldState.hideCurrentSnackBar();
-      scaffoldState.showSnackBar(SnackBar(
-        content: Text("票信息错误，请重试"),
-      ));
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final loginBloc2 = BlocProvider.of<LoginBloc>(context);
-    final ticketBloc2 = BlocProvider.of<TicketBloc>(context);
+    final loginBloc = BlocProvider.of<LoginBloc>(context);
 
     return Scaffold(
         appBar: AppBar(title: Text("Reply 2019 检票")),
@@ -79,12 +64,8 @@ class LoginPage extends StatelessWidget {
           ),
           blocListeners: <BlocListener>[
             BlocListener(
-                bloc: loginBloc2,
+                bloc: loginBloc,
                 listener: (context, state) => _loginListener(context, state)),
-            BlocListener(
-              bloc: ticketBloc2,
-              listener: (context, state) => _ticketListener(context, state),
-            )
           ],
         ));
   }
@@ -154,7 +135,7 @@ class ScanPage extends StatelessWidget {
                     initialPage: state.currentTicket,
                     enableInfiniteScroll: false,
                     onPageChanged: (page) {
-                      ticketBloc.dispatch(TicketPageChanged(page));
+                      _ticketBloc.dispatch(TicketPageChanged(page));
                     },
                     items: state.ticketList.map((ticket) {
                       // return _buildTicketCard(context, ticket);

@@ -20,5 +20,3 @@ class ScannedEvent extends TicketEvent {
   final String data;
   ScannedEvent(this.data) : super([data]);
 }
-
-class InvalidTicketEvent extends TicketEvent {}
