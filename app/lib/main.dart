@@ -175,11 +175,14 @@ class ScanPage extends StatelessWidget {
                       final String background = ticket.justChecked
                           ? "assets/successful.png"
                           : "assets/warning.png";
-                      return Stack(
-                        children: <Widget>[
-                          Image.asset(background),
-                          _buildTicketCard(context, ticket)
-                        ],
+                      return Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Stack(
+                          children: <Widget>[
+                            Image.asset(background),
+                            _buildTicketCard(context, ticket)
+                          ],
+                        ),
                       );
                     }).toList()),
               );
@@ -223,20 +226,34 @@ class ScanPage extends StatelessWidget {
     print(usedTime);
     print(DateTime.now());
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 0.0),
+      padding: EdgeInsets.all(12.0),
       child: Row(
+        mainAxisSize: MainAxisSize.max,
         children: <Widget>[
           Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text('#' + ticket.uid,
+              Text('2333333',
+                  // Text('#' + ticket.uid,
                   style: DefaultTextStyle.of(context)
                       .style
-                      .apply(fontSizeFactor: 0.7)),
+                      .apply(fontSizeFactor: 2.0)),
               Text("检票时间：" +
                   timeago.format(usedTime,
                       locale: 'zh_CN', clock: DateTime.now())),
               Text("手机号：" + ticket.phoneNumber)
             ],
+          ),
+          Column(
+            children: <Widget>[
+              Text(
+                ticket.justChecked ? '成功检票' : '票已用过',
+                style: DefaultTextStyle.of(context)
+                    .style
+                    .apply(fontSizeFactor: 2.0),
+              )
+            ],
+            crossAxisAlignment: CrossAxisAlignment.end,
           )
         ],
       ),
