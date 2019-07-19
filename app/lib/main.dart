@@ -13,11 +13,10 @@ import 'package:app/states/ticket_states.dart';
 import 'package:app/states/login_states.dart';
 import 'package:app/ticket.dart';
 
-final _loginBloc = LoginBloc();
-final _ticketBloc = TicketBloc(_loginBloc);
-
 void main() async {
   timeago.setLocaleMessages("zh_CN", timeago.ZhCnMessages());
+  final _loginBloc = LoginBloc();
+  final _ticketBloc = TicketBloc(_loginBloc);
   runApp(BlocProviderTree(
     blocProviders: [
       BlocProvider<LoginBloc>(
