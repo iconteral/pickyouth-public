@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
+from django.core import serializers
 from api.models import Ticket
 
 def now():
@@ -123,9 +124,18 @@ def api_login(request):
 @login_required
 def used_count(request):
     '''return population'''
-    pass
+    counts = Ticket.objects.filter(used=1).count()
+    return HttpResponse(counts)
 
 @login_required
-def used():
-    '''post back used ticket list'''
-    pass
+def used(request):
+    '''post back used ticket list and sort by date'''
+    tickets = Ticket.objects.all().filter(used=1)
+    data = []
+    times = []
+    for ticket in tickets:
+        times.append(ticket.used_date)
+    times.sort()
+    for t in times:
+        data.append(tickets.filter(used_date=t).get().uid)
+    return JsonResponse(data,safe = False)
