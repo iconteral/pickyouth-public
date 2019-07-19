@@ -9,4 +9,8 @@ class TicketState {
   bool isDuplicated({String uid}) {
     return _ticketList.any((ticket) => ticket.toString() == uid);
   }
+
+  int find(Ticket ticket) {
+    return _ticketList.indexOf(ticket);
+  }
 }

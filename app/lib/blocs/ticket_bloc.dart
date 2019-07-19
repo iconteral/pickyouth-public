@@ -10,7 +10,7 @@ import 'package:app/events/ticket_events.dart';
 import 'package:app/states/ticket_states.dart';
 import 'package:app/ticket.dart';
 
-final player = SoundPlayer(['assets/scanned.mp3'])..init();
+final player = SoundPlayer(['assets/scanned.mp3', 'assets/wrong.mp3'])..init();
 
 class TicketBloc extends Bloc<TicketEvent, TicketState> {
   @override
@@ -49,12 +49,14 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
     if (event is ScannedEvent) {
       player.play(0);
       Ticket ticket = Ticket(event.data);
-      if (!currentState.isDuplicated(uid: event.data)) {
+      int index = currentState.find(ticket);
+
+      if (index != currentState.ticketList.length - 1) {
         await ticket.init(this.client);
         if (ticket.isVaild) {
           this.dispatch(AddTicketEvent(ticket));
         } else {
-          this.dispatch(AddTicketEvent(ticket));
+          player.play(1);
         }
       }
     }
