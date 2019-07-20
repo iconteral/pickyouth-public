@@ -132,28 +132,37 @@ class ScanPage extends StatelessWidget {
             child: Stack(
               children: <Widget>[
                 QRScanner(),
-                Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Row(
-                    children: <Widget>[
-                      IconButton(
-                        splashColor: Colors.blue,
-                        color: Colors.blue,
-                        icon: Icon(Icons.flash_on),
-                        onPressed: () {
-                          BlocProvider.of<TorchBloc>(context)
-                              .dispatch(Toggle());
-                        },
-                      ),
-                      IconButton(
-                        splashColor: Colors.blue,
-                        color: Colors.blue,
-                        icon: Icon(Icons.add_box),
-                        onPressed: () {
-                          _showAlert(context);
-                        },
-                      )
-                    ],
+                Positioned(
+                  bottom: 0,
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.max,
+                      children: <Widget>[
+                        IconButton(
+                          splashColor: Colors.blue,
+                          color: Colors.blue,
+                          icon: Icon(Icons.flash_on),
+                          onPressed: () {
+                            BlocProvider.of<TorchBloc>(context)
+                                .dispatch(Toggle());
+                          },
+                        ),
+                        Text(
+                          "233",
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                        IconButton(
+                          splashColor: Colors.blue,
+                          color: Colors.blue,
+                          icon: Icon(Icons.add_box),
+                          onPressed: () {
+                            _showAlert(context);
+                          },
+                        )
+                      ],
+                    ),
                   ),
                 )
               ],
