@@ -132,26 +132,28 @@ class ScanPage extends StatelessWidget {
             child: Stack(
               children: <Widget>[
                 QRScanner(),
-                Positioned(
-                    bottom: 16.0,
-                    left: 16.0,
-                    child: IconButton(
-                      splashColor: Colors.blue,
-                      color: Colors.blue,
-                      icon: Icon(Icons.flash_on),
-                      onPressed: () {
-                        BlocProvider.of<TorchBloc>(context).dispatch(Toggle());
-                      },
-                    )),
-                Positioned(
-                  bottom: 16.0,
-                  right: 16.0,
-                  child: IconButton(
-                    color: Colors.blue,
-                    icon: Icon(Icons.add_box),
-                    onPressed: () {
-                      _showAlert(context);
-                    },
+                Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Row(
+                    children: <Widget>[
+                      IconButton(
+                        splashColor: Colors.blue,
+                        color: Colors.blue,
+                        icon: Icon(Icons.flash_on),
+                        onPressed: () {
+                          BlocProvider.of<TorchBloc>(context)
+                              .dispatch(Toggle());
+                        },
+                      ),
+                      IconButton(
+                        splashColor: Colors.blue,
+                        color: Colors.blue,
+                        icon: Icon(Icons.add_box),
+                        onPressed: () {
+                          _showAlert(context);
+                        },
+                      )
+                    ],
                   ),
                 )
               ],
