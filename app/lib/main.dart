@@ -160,30 +160,37 @@ class ScanPage extends StatelessWidget {
           BlocBuilder<TicketEvent, TicketState>(
             bloc: _ticketBloc,
             builder: (BuildContext context, TicketState state) {
+              var carouselSlider = CarouselSlider(
+                  enlargeCenterPage: true,
+                  viewportFraction: 0.9,
+                  initialPage: state.currentTicket,
+                  enableInfiniteScroll: false,
+                  onPageChanged: (page) {
+                    _ticketBloc.dispatch(TicketPageChanged(page));
+                  },
+                  items: state.ticketList.map((ticket) {
+                    final String background = ticket.justChecked
+                        ? "assets/successful.png"
+                        : "assets/warning.png";
+                    return Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Stack(
+                        children: <Widget>[
+                          Image.asset(background),
+                          _buildTicketCard(context, ticket)
+                        ],
+                      ),
+                    );
+                  }).toList());
               return Expanded(
                 flex: 3,
-                child: CarouselSlider(
-                    enlargeCenterPage: true,
-                    viewportFraction: 0.9,
-                    initialPage: state.currentTicket,
-                    enableInfiniteScroll: false,
-                    onPageChanged: (page) {
-                      _ticketBloc.dispatch(TicketPageChanged(page));
-                    },
-                    items: state.ticketList.map((ticket) {
-                      final String background = ticket.justChecked
-                          ? "assets/successful.png"
-                          : "assets/warning.png";
-                      return Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Stack(
-                          children: <Widget>[
-                            Image.asset(background),
-                            _buildTicketCard(context, ticket)
-                          ],
-                        ),
-                      );
-                    }).toList()),
+                child: BlocListener(
+                  bloc: BlocProvider.of<TicketBloc>(context),
+                  listener: (context, state) {
+                    carouselSlider.animateToPage(state.ticketList.length - 1);
+                  },
+                  child: carouselSlider,
+                ),
               );
             },
           )
