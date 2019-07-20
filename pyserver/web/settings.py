@@ -25,7 +25,7 @@ SECRET_KEY = '956s+k2jmwp%$kktw3ktzl5v+igq41ohw31z#gi7^^geyd_3^!'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-#ALLOWED_HOSTS = ['39.105.70.152','pickyouth.xyz','127.0.0.1','0.0.0.0']
+ALLOWED_HOSTS = ['39.105.70.152','pickyouth.xyz','127.0.0.1','0.0.0.0']
 
 
 # Application definition
