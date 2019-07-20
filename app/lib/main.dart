@@ -65,7 +65,7 @@ class LoginPage extends StatelessWidget {
         body: BlocListenerTree(
           child: Center(
             child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4.0),
+                padding: EdgeInsets.symmetric(horizontal: 32.0),
                 child: LoginForm()),
           ),
           blocListeners: <BlocListener>[
@@ -166,7 +166,7 @@ class ScanPage extends StatelessWidget {
                   initialPage: state.currentTicket,
                   enableInfiniteScroll: false,
                   onPageChanged: (page) {
-                    _ticketBloc.dispatch(TicketPageChanged(page));
+                    // _ticketBloc.dispatch(TicketPageChanged(page));
                   },
                   items: state.ticketList.map((ticket) {
                     final String background = ticket.justChecked
@@ -187,7 +187,9 @@ class ScanPage extends StatelessWidget {
                 child: BlocListener(
                   bloc: BlocProvider.of<TicketBloc>(context),
                   listener: (context, state) {
-                    carouselSlider.animateToPage(state.ticketList.length - 1);
+                    carouselSlider.animateToPage(state.ticketList.length - 1,
+                        duration: Duration(milliseconds: 10),
+                        curve: Curves.easeInOut);
                   },
                   child: carouselSlider,
                 ),
