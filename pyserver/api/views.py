@@ -9,7 +9,6 @@ from django.utils import timezone
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
-from django.core import serializers
 from django.db import connection
 from api.models import Ticket
 
@@ -28,13 +27,28 @@ def now():
 
 @login_required
 def ticket_info(request, password):
-    '''Return ticket info. but not check in'''
+    '''
+    Return ticket info. but not check in.
+    Password allows both password and phone number.
+    '''
     data = {}
-    try:
-        ticket = Ticket.objects.get(password=password)
-    except:
+    if len(password) == 8:
+        try:
+            ticket = Ticket.objects.get(password=password)
+        except:
+            data['status'] = 'failed'
+            data['message'] = 'password not found.'
+            return JsonResponse(data)
+    elif len(password) == 11:
+        try:
+            ticket = Ticket.objects.get(phone_number=password)
+        except:
+            data['status'] = 'failed'
+            data['message'] = 'phone number not found.'
+            return JsonResponse(data)
+    else:
         data['status'] = 'failed'
-        data['message'] = 'password not found.'
+        data['message'] = 'given value is not valid'
         return JsonResponse(data)
 
     data['status'] = 'ok'
