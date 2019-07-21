@@ -62,8 +62,12 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
     }
     if (event is ScannedEvent) {
       player.play(0);
-      if (event.data.trim().length != 0) {
-        dispatch(AddTicketEvent(Ticket(event.data)));
+      if (event.data.trim().length == 8) {
+        try {
+          dispatch(AddTicketEvent(Ticket(uid: int.parse(event.data))));
+        } finally {
+          print('error');
+        }
       }
     }
     if (event is TicketPageChanged) {
