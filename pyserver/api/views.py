@@ -77,6 +77,7 @@ def check_ticket(request, password):
     data['data'] = {
         'password': ticket.password,
         'used_date': ticket.checktime,
+        'used': 1 if ticket.ypzt == 1 else 0,
         'phone_number': ticket.phone_number,
         'seat1': ticket.t1,
         'seat2': ticket.t2,
