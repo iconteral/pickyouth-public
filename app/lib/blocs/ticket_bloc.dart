@@ -49,7 +49,8 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
           if (ticketIndex == -1) {
             newList.add(event.ticket);
           } else {
-            newList.add(newList.removeAt(ticketIndex));
+            newList.removeAt(ticketIndex);
+            newList.add(event.ticket);
           }
           TicketState newState = TicketState(
               ticketList: newList, currentTicket: currentState.currentTicket);
@@ -64,7 +65,11 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
       player.play(0);
       if (event.data.trim().length == 8) {
         try {
-          dispatch(AddTicketEvent(Ticket(uid: int.parse(event.data))));
+          if (currentState.ticketList.length == 0 ||
+              currentState.ticketList.last.uid.toString() !=
+                  event.data.trim()) {
+            dispatch(AddTicketEvent(Ticket(uid: int.parse(event.data))));
+          }
         } finally {
           print('error');
         }

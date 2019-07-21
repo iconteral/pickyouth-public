@@ -37,10 +37,12 @@ class Ticket extends Equatable {
     }
     var response = await client.get(url);
     var ticketInfo = response.data;
-    if (ticketInfo['message'] == 'ticket has been checked successfully.' ||
-        ticketInfo['message'] == 'ticket has already been used.' ||
-        ticketInfo['message'] == 'ok') {
+    String message = ticketInfo['message'];
+    if (message == 'ticket has been checked successfully.' ||
+        message == 'ticket has already been used.' ||
+        message == 'ok') {
       ticketInfo = ticketInfo['data'];
+      uid = ticketInfo['password'];
       phoneNumber = ticketInfo['phone_number'];
       ticketNumber = ticketInfo['number'];
       seat1 = ticketInfo['seat1'];
@@ -51,7 +53,7 @@ class Ticket extends Equatable {
       }
       isVaild = true;
     }
-    if (ticketInfo['message'] == 'ticket has been checked succesfully') {
+    if (message == 'ticket has been checked successfully.') {
       justChecked = true;
     }
   }

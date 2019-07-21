@@ -36,6 +36,7 @@ dependencies:
   audioplayer: ^0.5.2
   wakelock: ^0.1.2
   torch: ^0.1.1
+  vibration: ^1.1.0
 
 dev_dependencies:
   flutter_test:
