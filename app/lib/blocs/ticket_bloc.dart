@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:app/sound_player.dart';
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
+import 'package:vibration/vibration.dart';
 
 import 'package:app/states/login_states.dart';
 import 'package:app/blocs/login_bolc.dart';
@@ -40,6 +41,7 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
       await event.ticket.init(client);
       if (event.ticket.isVaild) {
         if (event.ticket.justChecked) {
+          Vibration.vibrate(duration: 1000);
           player.play(2);
         }
         int ticketIndex = currentState.ticketList.indexOf(event.ticket);
@@ -62,12 +64,12 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
       }
     }
     if (event is ScannedEvent) {
-      player.play(0);
       if (event.data.trim().length == 8) {
         try {
           if (currentState.ticketList.length == 0 ||
               currentState.ticketList.last.uid.toString() !=
                   event.data.trim()) {
+            Vibration.vibrate(duration: 100);
             dispatch(AddTicketEvent(Ticket(uid: int.parse(event.data))));
           }
         } finally {

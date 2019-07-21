@@ -92,7 +92,7 @@ class ScanPage extends StatelessWidget {
                   bloc: BlocProvider.of<TicketBloc>(context),
                   listener: (context, state) {
                     carouselSlider.animateToPage(state.ticketList.length - 1,
-                        duration: Duration(seconds: 1),
+                        duration: Duration(milliseconds: 300),
                         curve: Curves.easeInOut);
                   },
                   child: carouselSlider,
