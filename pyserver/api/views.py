@@ -18,7 +18,7 @@ SEAT_REGEX = r'(\w+)(\d+_\d+)'
 
 def check_seat(section, seat):
     with connection.cursor() as cursor:
-        cursor.execute("UPDATE tableq{s} SET ypzt=1 WHERE tables={seat}".format(
+        cursor.execute("UPDATE tableq{s} SET ypzt=1 WHERE tables='{seat}'".format(
             s=section, seat=seat))
 
 
@@ -69,8 +69,11 @@ def check_ticket(request, password):
         ticket.ypzt = 1
         ticket.checktime = now()
         ticket.save()
+        print(ticket.number)
         for i in range(ticket.number):
-            t = re.findall(SEAT_REGEX, ticket['t'+str(i+1)])
+            t = re.findall(SEAT_REGEX, ticket.__dict__['t'+str(i+1)])[0]
+            
+            print(t)
             check_seat(t[0], t[1])
         data['status'] = 'ok'
         data['message'] = 'ticket has been checked successfully.'
