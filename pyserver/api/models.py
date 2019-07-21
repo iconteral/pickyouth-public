@@ -12,5 +12,8 @@ class Ticket(models.Model):
     checktime = models.TextField()
     ypzt = models.IntegerField()
 
+    class Meta:
+        db_table = 'ticket'
+
     def __str__(self):
         return self.password

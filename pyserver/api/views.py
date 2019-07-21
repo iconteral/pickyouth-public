@@ -1,6 +1,7 @@
 import datetime
 import hashlib
 import pytz
+import re
 
 import qrcode
 
@@ -9,7 +10,16 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.core import serializers
+from django.db import connection
 from api.models import Ticket
+
+SEAT_REGEX = r'(\w+)(\d+_\d+)'
+
+
+def check_seat(section, seat):
+    with connection.cursor() as cursor:
+        cursor.execute("UPDATE tableq{s} SET ypzt=1 WHERE tables={seat}".format(
+            s=section, seat=seat))
 
 
 def now():
@@ -31,9 +41,12 @@ def ticket_info(request, password):
     data['message'] = 'ok'
     data['data'] = {
         'password': ticket.password,
-        'phone_number': str(ticket.phone_number),
-        'used': ticket.ypzt,
         'used_date': ticket.checktime,
+        'phone_number': ticket.phone_number,
+        'seat1': ticket.t1,
+        'seat2': ticket.t2,
+        'number': ticket.number,
+        'used': ticket.ypzt,
     }
     return JsonResponse(data)
 
@@ -56,6 +69,9 @@ def check_ticket(request, password):
         ticket.ypzt = 1
         ticket.checktime = now()
         ticket.save()
+        for i in range(ticket.number):
+            t = re.findall(SEAT_REGEX, ticket['t'+str(i+1)])
+            check_seat(t[0], t[1])
         data['status'] = 'ok'
         data['message'] = 'ticket has been checked successfully.'
     data['data'] = {
