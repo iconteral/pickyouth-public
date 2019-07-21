@@ -1,4 +1,3 @@
-import uuid
 import datetime
 import hashlib
 import pytz
@@ -12,103 +11,100 @@ from django.contrib.auth import authenticate, login
 from django.core import serializers
 from api.models import Ticket
 
-def now():
-    return datetime.datetime.utcnow().replace(tzinfo=pytz.utc).astimezone(pytz.timezone('Asia/Shanghai'))
 
-def generate_uid():
-    u = ''.join([str(f) for f in uuid.uuid4().fields])
-    u += str(timezone.now())
-    u += 'pickyouth'
-    return hashlib.sha224(u.encode('utf-8')).hexdigest()
+def now():
+    return datetime.datetime.utcnow().replace(tzinfo=pytz.utc).astimezone(pytz.timezone('Asia/Shanghai')).strftime("%Y-%m-%d %H:%M:%S")
 
 
 @login_required
-def ticket_info(request, uid):
+def ticket_info(request, password):
     '''Return ticket info. but not check in'''
     data = {}
     try:
-        ticket = Ticket.objects.get(uid=uid)
+        ticket = Ticket.objects.get(password=password)
     except:
         data['status'] = 'failed'
-        data['message'] = 'uid not found.'
+        data['message'] = 'password not found.'
         return JsonResponse(data)
 
     data['status'] = 'ok'
     data['message'] = 'ok'
     data['data'] = {
-        'uid': ticket.uid,
-        'bought_date': ticket.bought_date,
-        'phone_number': ticket.phone_number,
-        'used': ticket.used,
-        'used_date': ticket.used_date,
+        'password': ticket.password,
+        'phone_number': str(ticket.phone_number),
+        'used': ticket.ypzt,
+        'used_date': ticket.checktime,
     }
     return JsonResponse(data)
 
 
 @login_required
-def check_ticket(request, uid):
-    '''Check in and mark as invalid'''
+def check_ticket(request, password):
+    '''Check in and mark as checked'''
     data = {}
     try:
-        ticket = Ticket.objects.get(uid=uid)
+        ticket = Ticket.objects.get(password=password)
     except:
         data['status'] = 'failed'
-        data['message'] = 'uid not found.'
+        data['message'] = 'password not found.'
         return JsonResponse(data)
 
-    if ticket.used:
+    if ticket.ypzt == 1:
         data['status'] = 'failed'
         data['message'] = 'ticket has already been used.'
     else:
-        ticket.used = True
-        ticket.used_date = now()
+        ticket.ypzt = 1
+        ticket.checktime = now()
         ticket.save()
         data['status'] = 'ok'
         data['message'] = 'ticket has been checked successfully.'
     data['data'] = {
-        'uid': ticket.uid,
-        'bought_date': ticket.bought_date,
+        'password': ticket.password,
+        'used_date': ticket.checktime,
         'phone_number': ticket.phone_number,
-        'used': ticket.used,
-        'used_date': ticket.used_date,
+        'seat1': ticket.t1,
+        'seat2': ticket.t2,
+        'number': ticket.number,
+        'used': ticket.ypzt,
     }
     return JsonResponse(data)
 
 
-@login_required
-def create_ticket(request, phone_number):
-    # 验重
-    while True:
-        uid = generate_uid()
-        try:
-            Ticket.objects.get(uid=uid)
-        except:
-            break
+# @login_required
+# def create_ticket(request, phone_number):
+#     # 验重
+#     while True:
+#         password = generate_password()
+#         try:
+#             Ticket.objects.get(password=password)
+#         except:
+#             break
 
-    ticket = Ticket(uid=uid, phone_number=phone_number, bought_date=now())
-    ticket.save()
-    data = {
-        'status': 'ok',
-        'message': 'ticked generated.',
-        'data': {
-            'uid': uid,
-        }
-    }
-    return JsonResponse(data)
+#     ticket = Ticket(password=password,
+#                     phone_number=phone_number, bought_date=now())
+#     ticket.save()
+#     data = {
+#         'status': 'ok',
+#         'message': 'ticked generated.',
+#         'data': {
+#             'password': password,
+#         }
+#     }
+#     return JsonResponse(data)
 
 
-def ticket_image(request, uid):
-    
-    try:
-        ticket = Ticket.objects.get(uid=uid)
-    except:
-        return HttpResponse('ticket not found.')
-    
-    img = qrcode.make(uid)
-    
-    response = HttpResponse(content_type="image/jpeg")
-    img.save(response, 'JPEG')
-    return response
+# def ticket_image(request, password):
+
+#     try:
+#         ticket = Ticket.objects.get(password=password)
+#     except:
+#         return HttpResponse('ticket not found.')
+
+#     img = qrcode.make(password)
+
+#     response = HttpResponse(content_type="image/jpeg")
+#     img.save(response, 'JPEG')
+#     return response
 
 
 def api_login(request):
@@ -121,21 +117,29 @@ def api_login(request):
     else:
         return HttpResponse('wrong.')
 
-@login_required
-def used_count(request):
-    '''return population'''
-    counts = Ticket.objects.filter(used=1).count()
-    return HttpResponse(counts)
 
 @login_required
-def used(request):
-    '''post back used ticket list and sort by date'''
-    tickets = Ticket.objects.all().filter(used=1)
-    data = []
-    times = []
-    for ticket in tickets:
-        times.append(ticket.used_date)
-    times.sort()
-    for t in times:
-        data.append(tickets.filter(used_date=t).get().uid)
-    return JsonResponse(data,safe = False)
+def used_count(request):
+    '''return entry people number'''
+    count = 0
+    try:
+        used = Ticket.objects.filter(ypzt=1)
+        for ticket in used:
+            count += ticket.number
+    except:
+        return HttpResponse('wrong')
+    return HttpResponse(count)
+
+
+# @login_required
+# def used(request):
+#     '''post back used ticket list and sort by date'''
+#     tickets = Ticket.objects.all().filter(used=1)
+#     data = []
+#     times = []
+#     for ticket in tickets:
+#         times.append(ticket.used_date)
+#     times.sort()
+#     for t in times:
+#         data.append(tickets.filter(used_date=t).get().password)
+#     return JsonResponse(data, safe=False)
