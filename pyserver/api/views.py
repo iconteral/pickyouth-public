@@ -46,7 +46,7 @@ def ticket_info(request, password):
         'seat1': ticket.t1,
         'seat2': ticket.t2,
         'number': ticket.number,
-        'used': ticket.ypzt,
+        'used': 1 if ticket.ypzt == 1 else 0,
     }
     return JsonResponse(data)
 
@@ -69,11 +69,8 @@ def check_ticket(request, password):
         ticket.ypzt = 1
         ticket.checktime = now()
         ticket.save()
-        print(ticket.number)
         for i in range(ticket.number):
             t = re.findall(SEAT_REGEX, ticket.__dict__['t'+str(i+1)])[0]
-            
-            print(t)
             check_seat(t[0], t[1])
         data['status'] = 'ok'
         data['message'] = 'ticket has been checked successfully.'
@@ -84,7 +81,6 @@ def check_ticket(request, password):
         'seat1': ticket.t1,
         'seat2': ticket.t2,
         'number': ticket.number,
-        'used': ticket.ypzt,
     }
     return JsonResponse(data)
 
