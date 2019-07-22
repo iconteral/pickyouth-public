@@ -16,4 +16,4 @@ class Ticket(models.Model):
         db_table = 'ticket'
 
     def __str__(self):
-        return self.password
+        return str(self.password)

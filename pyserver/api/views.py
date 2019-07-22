@@ -84,7 +84,7 @@ def ticket_info(request, password):
 def return_seat(request):
     '''Return a seat'''
     try:
-        section = request.POST['section']
+        section = request.POST['section'].lower()
         position = request.POST['position']
         result = get_seat_state(section, position)
         if (result == -1):
@@ -115,7 +115,7 @@ def check_ticket(request, password):
         ticket.save()
         for i in range(ticket.number):
             t = re.findall(SEAT_REGEX, ticket.__dict__['t'+str(i+1)])[0]
-            set_seat_state(t[0], t[1])
+            set_seat_state(t[0].lower(), t[1])
         data['status'] = 'ok'
         data['message'] = 'ticket has been checked successfully.'
     data['data'] = {
