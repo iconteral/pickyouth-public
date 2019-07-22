@@ -23,9 +23,9 @@ def check_seat(section, seat):
 
 def count_section(section):
     with connection.cursor() as cursor:
-        count = cursor.execute(
-            "SELECT COUNT(*) FROM tableq{s} WHERE ypzt=1".format(s=section))
-        return count
+        result = cursor.execute(
+            "SELECT COUNT(id) FROM tableq{s} WHERE ypzt=1".format(s=section))
+        return cursor.fetchone()[0]
 
 
 def now():
