@@ -87,7 +87,9 @@ def return_seat(request):
         section = request.POST['section']
         position = request.POST['position']
         result = get_seat_state(section, position)
-        print(result)
+        if (result == -1) {
+            return HttpResponse('already')
+        }
         set_seat_state(section, position, False)
         return HttpResponse('ok')
     except:
