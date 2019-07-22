@@ -5,7 +5,7 @@ import 'package:timeago/timeago.dart' as timeago;
 class TicketCard extends StatelessWidget {
   final Ticket ticket;
   TicketCard(this.ticket);
-  final exp = new RegExp(r"(\w+)(\d+)_(\d+)");
+  final exp = new RegExp(r"([a-zA-Z]+)(\d+)_(\d+)");
   String _buildSeatString(String raw) {
     RegExpMatch m = exp.firstMatch(raw);
     return "${m.group(1).toUpperCase()}区${m.group(2)}排${m.group(3)}座";

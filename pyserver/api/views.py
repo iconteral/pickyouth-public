@@ -12,7 +12,7 @@ from django.contrib.auth import authenticate, login
 from django.db import connection
 from api.models import Ticket
 
-SEAT_REGEX = r'(\w+)(\d+_\d+)'
+SEAT_REGEX = r'([a-zA-Z]+)(\d+_\d+)'
 
 
 def get_seat_state(section, seat):
