@@ -15,10 +15,11 @@ from api.models import Ticket
 SEAT_REGEX = r'(\w+)(\d+_\d+)'
 
 
-def check_seat(section, seat):
+def set_seat_state(section, seat, occupied=True):
     with connection.cursor() as cursor:
-        cursor.execute("UPDATE tableq{s} SET ypzt=1 WHERE tables='{seat}'".format(
-            s=section, seat=seat))
+        cursor.execute("UPDATE tableq{s} SET ypzt={o} WHERE tables='{seat}'".format(
+            s=section, seat=seat, o=1 if occupied else -1))
+        return cursor.fetchone()
 
 
 def count_section(section):
@@ -73,7 +74,19 @@ def ticket_info(request, password):
 
 
 @login_required
-def
+def return_seat(request):
+    '''Return a seat'''
+    try:
+        section = request.POST['section']
+        position = request.POST['position']
+        result = set_seat_state(section, position, False)
+        print(result)
+        if (result.length == 0):
+            return HttpResponse('wrong')
+        else:
+            return HttpResponse('ok')
+    except:
+        return HttpResponse('wrong')
 
 
 @login_required
@@ -96,7 +109,7 @@ def check_ticket(request, password):
         ticket.save()
         for i in range(ticket.number):
             t = re.findall(SEAT_REGEX, ticket.__dict__['t'+str(i+1)])[0]
-            check_seat(t[0], t[1])
+            set_seat_state(t[0], t[1])
         data['status'] = 'ok'
         data['message'] = 'ticket has been checked successfully.'
     data['data'] = {
