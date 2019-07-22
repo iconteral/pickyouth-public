@@ -4,7 +4,7 @@ from django.db import models
 class Ticket(models.Model):
 
     id = models.AutoField(primary_key=True)
-    phone_number = models.BigIntegerField()
+    phone = models.BigIntegerField()
     password = models.BigIntegerField()
     number = models.IntegerField()
     t1 = models.TextField()

@@ -50,13 +50,13 @@ def ticket_info(request, password):
     if len(password) == 8:
         try:
             ticket = Ticket.objects.get(password=password)
-        except:
+        except Exception as error:
             data['status'] = 'failed'
             data['message'] = 'password not found.'
             return JsonResponse(data)
     elif len(password) == 11:
         try:
-            ticket = Ticket.objects.get(phone_number=password)
+            ticket = Ticket.objects.get(phone=password)
         except:
             data['status'] = 'failed'
             data['message'] = 'phone number not found.'
@@ -71,7 +71,7 @@ def ticket_info(request, password):
     data['data'] = {
         'password': ticket.password,
         'used_date': ticket.checktime,
-        'phone_number': ticket.phone_number,
+        'phone_number': ticket.phone,
         'seat1': ticket.t1,
         'seat2': ticket.t2,
         'number': ticket.number,
@@ -122,7 +122,7 @@ def check_ticket(request, password):
         'password': ticket.password,
         'used_date': ticket.checktime,
         'used': 1 if ticket.ypzt == 1 else 0,
-        'phone_number': ticket.phone_number,
+        'phone_number': ticket.phone,
         'seat1': ticket.t1,
         'seat2': ticket.t2,
         'number': ticket.number,
