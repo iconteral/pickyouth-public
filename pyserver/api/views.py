@@ -158,10 +158,7 @@ def used_count(request):
     '''return entry people number'''
     data = {}
     for section in ['vip', 'b', 'c', 'e', 'f']:
-        try:
-            data[section] = count_section(section)
-        except:
-            return HttpResponse('wrong')
+        data[section] = count_section(section)
     return JsonResponse(data)
 
 
