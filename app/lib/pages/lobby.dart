@@ -21,7 +21,7 @@ class Lobby extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 _buildButton(context, Icons.scanner, "检票", ScanPage()),
-                _buildButton(context, Icons.backspace, "退票", ReturnPage()),
+                _buildButton(context, Icons.backspace, "退票", MainReturnPage()),
               ],
             ),
             Column(

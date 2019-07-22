@@ -1,10 +1,7 @@
-import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 @immutable
-abstract class ReturnState extends Equatable {
-  ReturnState([List props = const []]) : super(props);
-}
+abstract class ReturnState {}
 
 class InitialReturnState extends ReturnState {}
 
