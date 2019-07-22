@@ -33,7 +33,14 @@ class ReturnBloc extends Bloc<ReturnEvent, ReturnState> {
     ReturnEvent event,
   ) async* {
     if (event is ReturnTicketEvent) {
-      print('here');
+      var postData = {"section": event.section, "position": event.position};
+      FormData formData = FormData.from(postData);
+      Response response = await client.post("/return", data: formData);
+      if (response.data.toString() == 'wrong') {
+        yield SuccessfulReturnState();
+      } else {
+        yield FailedReturnState();
+      }
     }
   }
 }

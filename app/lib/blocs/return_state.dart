@@ -8,6 +8,6 @@ abstract class ReturnState extends Equatable {
 
 class InitialReturnState extends ReturnState {}
 
-class SuccuessfulReturnState extends ReturnState {}
+class SuccessfulReturnState extends ReturnState {}
 
 class FailedReturnState extends ReturnState {}

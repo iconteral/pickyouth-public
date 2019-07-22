@@ -30,83 +30,88 @@ class ReturnPageState extends State {
   };
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            DropdownButton(
-              items: sections.map((section) {
-                return DropdownMenuItem<String>(
-                    value: section, child: Text(section));
-              }).toList(),
-              onChanged: (section) {
-                setState(() {
-                  currentSection = section.value;
-                });
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("退座"),
+      ),
+      body: Column(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              DropdownButton(
+                items: sections.map((section) {
+                  return DropdownMenuItem<String>(
+                      value: section, child: Text(section));
+                }).toList(),
+                onChanged: (section) {
+                  setState(() {
+                    currentSection = section.value;
+                  });
+                },
+              ),
+              Text("区"),
+              DropdownButton(
+                  onChanged: (item) {
+                    setState(() {
+                      row = item.value;
+                    });
+                  },
+                  items: new List<int>.generate(
+                      sizes[currentSection].rows, (i) => i + 1).map((i) {
+                    return DropdownMenuItem(
+                      value: i + 1,
+                      child: Text((i + 1).toString()),
+                    );
+                  }).toList()),
+              Text("排"),
+              DropdownButton(
+                  onChanged: (item) {
+                    setState(() {
+                      column = item.value;
+                    });
+                  },
+                  items: new List<int>.generate(
+                      sizes[currentSection].columns, (i) => i + 1).map((i) {
+                    return DropdownMenuItem(
+                      value: i + 1,
+                      child: Text((i + 1).toString()),
+                    );
+                  }).toList()),
+              Text("座")
+            ],
+          ),
+          BlocListener(
+            bloc: BlocProvider.of<ReturnBloc>(context),
+            listener: (conetxt, state) {
+              var scaffold = Scaffold.of(context);
+              scaffold.hideCurrentSnackBar();
+              if (state is FailedReturnState) {
+                scaffold.showSnackBar(SnackBar(
+                  content: Text("退座失败"),
+                  backgroundColor: Colors.red,
+                ));
+              }
+              if (state is SuccessfulReturnState) {
+                scaffold.showSnackBar(SnackBar(
+                  content: Text("退座成功"),
+                  backgroundColor: Colors.green,
+                ));
+              }
+            },
+            child: RaisedButton(
+              child: Text("退座"),
+              onPressed: () {
+                BlocProvider.of<ReturnBloc>(context).dispatch(ReturnTicketEvent(
+                    section: currentSection, position: "${row}_$column"));
               },
             ),
-            Text("区"),
-            DropdownButton(
-                onChanged: (item) {
-                  setState(() {
-                    row = item.value;
-                  });
-                },
-                items: new List<int>.generate(
-                    sizes[currentSection].rows, (i) => i + 1).map((i) {
-                  return DropdownMenuItem(
-                    value: i + 1,
-                    child: Text((i + 1).toString()),
-                  );
-                }).toList()),
-            Text("排"),
-            DropdownButton(
-                onChanged: (item) {
-                  setState(() {
-                    column = item.value;
-                  });
-                },
-                items: new List<int>.generate(
-                    sizes[currentSection].columns, (i) => i + 1).map((i) {
-                  return DropdownMenuItem(
-                    value: i + 1,
-                    child: Text((i + 1).toString()),
-                  );
-                }).toList()),
-            Text("座")
-          ],
-        ),
-        BlocListener(
-          bloc: BlocProvider.of<ReturnBloc>(context),
-          listener: (conetxt, state) {
-            var scaffold = Scaffold.of(context);
-            scaffold.hideCurrentSnackBar();
-            if (state is FailedReturnState) {
-              scaffold.showSnackBar(SnackBar(
-                content: Text("退座失败"),
-                backgroundColor: Colors.red,
-              ));
-            }
-            if (state is SuccuessfulReturnState) {
-              scaffold.showSnackBar(SnackBar(
-                content: Text("退座成功"),
-                backgroundColor: Colors.green,
-              ));
-            }
-          },
-          child: RaisedButton(
-            child: Text("退座"),
-            onPressed: () {
-              BlocProvider.of<ReturnBloc>(context).dispatch(ReturnTicketEvent(
-                  section: currentSection, position: "${row}_$column"));
-            },
-          ),
-        )
-      ],
+          )
+        ],
+      ),
     );
   }
 }
