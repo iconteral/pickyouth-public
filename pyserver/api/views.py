@@ -19,7 +19,7 @@ def set_seat_state(section, seat, occupied=True):
     with connection.cursor() as cursor:
         cursor.execute("UPDATE tableq{s} SET ypzt={o} WHERE tables='{seat}'".format(
             s=section, seat=seat, o=1 if occupied else -1))
-        return cursor.fetchone()
+        cursor.fetchone()
 
 
 def count_section(section):
@@ -79,12 +79,8 @@ def return_seat(request):
     try:
         section = request.POST['section']
         position = request.POST['position']
-        result = set_seat_state(section, position, False)
-        print(result)
-        if (result.length == 0):
-            return HttpResponse('wrong')
-        else:
-            return HttpResponse('ok')
+        set_seat_state(section, position, False)
+        return HttpResponse('ok')
     except:
         return HttpResponse('wrong')
 
