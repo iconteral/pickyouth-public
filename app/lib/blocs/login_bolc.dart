@@ -28,7 +28,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       } else {
         var postData = {"username": event.username, "password": event.password};
         FormData formData = FormData.from(postData);
-        print(postData);
         Response response = await client.post("/login", data: formData);
         if (response.data.toString() == 'wrong.') {
           this.dispatch(LoginFailedEvent(errorMessage: "信息错误"));

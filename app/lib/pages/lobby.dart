@@ -1,4 +1,5 @@
 import 'package:app/pages/info.dart';
+import 'package:app/pages/seat.dart';
 import 'package:flutter/material.dart';
 
 import 'package:app/pages/check.dart';
@@ -25,7 +26,7 @@ class Lobby extends StatelessWidget {
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                _buildButton(context, Icons.event_seat, "座位状态", null),
+                _buildButton(context, Icons.event_seat, "座位状态", SeatPage()),
                 _buildButton(context, Icons.info, "查票", InfoPage()),
               ],
             )

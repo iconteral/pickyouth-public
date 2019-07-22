@@ -1,4 +1,5 @@
 import 'package:app/blocs/info_bloc.dart';
+import 'package:app/blocs/seat_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -15,6 +16,7 @@ void main() async {
   final _ticketBloc = TicketBloc(_loginBloc);
   final _torchBloc = TorchBloc();
   final _infoBloc = InfoBloc(_loginBloc);
+  final _seatBloc = SeatBloc(_loginBloc);
   runApp(BlocProviderTree(
     blocProviders: [
       BlocProvider<LoginBloc>(
@@ -28,6 +30,9 @@ void main() async {
       ),
       BlocProvider<InfoBloc>(
         builder: (BuildContext context) => _infoBloc,
+      ),
+      BlocProvider<SeatBloc>(
+        builder: (BuildContext context) => _seatBloc,
       )
     ],
     child: MaterialApp(

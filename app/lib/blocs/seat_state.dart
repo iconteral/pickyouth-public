@@ -1,9 +1,6 @@
-import 'package:equatable/equatable.dart';
-import 'package:meta/meta.dart';
+class Loaded {
+  final Map<String, dynamic> count;
+  final String currespondingUrl;
 
-@immutable
-abstract class SeatState extends Equatable {
-  SeatState([List props = const []]) : super(props);
+  Loaded({this.count, this.currespondingUrl});
 }
-
-class InitialSeatState extends SeatState {}
