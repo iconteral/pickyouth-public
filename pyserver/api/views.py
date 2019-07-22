@@ -24,7 +24,7 @@ def set_seat_state(section, seat, occupied=True):
 
 def count_section(section):
     with connection.cursor() as cursor:
-        result = cursor.execute(
+        cursor.execute(
             "SELECT COUNT(id) FROM tableq{s} WHERE ypzt=1".format(s=section))
         return cursor.fetchone()[0]
 
