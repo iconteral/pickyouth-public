@@ -11,5 +11,5 @@ urlpatterns = [
     path('login', views.api_login, name='login'),
     path('ticket/info/used_count', views.used_count, name='used_count'),
     # path('ticket/info/used', views.used, name= 'used')
-    path('return', views.used_count, name="return_seat"),
+    path('return', views.return_seat, name="return_seat"),
 ]
