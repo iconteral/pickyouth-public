@@ -10,7 +10,7 @@ class SeatBloc extends Bloc<SeatEvent, Loaded> {
   @override
   Loaded get initialState => Loaded(
       count: {'vip': 0, 'b': 0, 'c': 0, 'd': 0, 'e': 0, 'f': 0},
-      currespondingUrl: '');
+      currespondingUrl: 'http://reply2019.club/ty84961528/index-vip.php');
 
   StreamSubscription subscription;
   LoginBloc loginBloc;

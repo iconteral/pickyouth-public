@@ -1,4 +1,5 @@
 import 'package:app/blocs/info_bloc.dart';
+import 'package:app/blocs/return_bloc.dart';
 import 'package:app/blocs/seat_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,6 +18,7 @@ void main() async {
   final _torchBloc = TorchBloc();
   final _infoBloc = InfoBloc(_loginBloc);
   final _seatBloc = SeatBloc(_loginBloc);
+  final _returnBloc = ReturnBloc(_loginBloc);
   runApp(BlocProviderTree(
     blocProviders: [
       BlocProvider<LoginBloc>(
@@ -33,6 +35,9 @@ void main() async {
       ),
       BlocProvider<SeatBloc>(
         builder: (BuildContext context) => _seatBloc,
+      ),
+      BlocProvider<ReturnBloc>(
+        builder: (BuildContext context) => _returnBloc,
       )
     ],
     child: MaterialApp(
