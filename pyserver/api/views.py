@@ -15,6 +15,13 @@ from api.models import Ticket
 SEAT_REGEX = r'(\w+)(\d+_\d+)'
 
 
+def get_seat_state(section, seat):
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT ypzt FROM tableq{s} WHERE tables='{seat}'".format(
+            s=section, seat=seat))
+        return cursor.fetchone()[0]
+
+
 def set_seat_state(section, seat, occupied=True):
     with connection.cursor() as cursor:
         cursor.execute("UPDATE tableq{s} SET ypzt={o} WHERE tables='{seat}'".format(
@@ -79,6 +86,8 @@ def return_seat(request):
     try:
         section = request.POST['section']
         position = request.POST['position']
+        result = get_seat_state(section, position)
+        print(result)
         set_seat_state(section, position, False)
         return HttpResponse('ok')
     except:
