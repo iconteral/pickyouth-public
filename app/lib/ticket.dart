@@ -1,8 +1,5 @@
-import 'package:app/sound_player.dart';
 import 'package:equatable/equatable.dart';
 import 'package:dio/dio.dart';
-
-final player = SoundPlayer(['assets/wrong.mp3', 'assets/checked.mp3']);
 
 class Ticket extends Equatable {
   int uid = 0;

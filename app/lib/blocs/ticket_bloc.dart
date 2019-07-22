@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:app/sound_player.dart';
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:vibration/vibration.dart';
@@ -10,9 +9,6 @@ import 'package:app/blocs/login_bolc.dart';
 import 'package:app/events/ticket_events.dart';
 import 'package:app/states/ticket_states.dart';
 import 'package:app/ticket.dart';
-
-final player = SoundPlayer(
-    ['assets/scanned.mp3', 'assets/wrong.mp3', 'assets/checked.mp3']);
 
 class TicketBloc extends Bloc<TicketEvent, TicketState> {
   @override
@@ -42,7 +38,6 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
       if (event.ticket.isVaild) {
         if (event.ticket.justChecked) {
           Vibration.vibrate(duration: 1000);
-          player.play(2);
         }
         int ticketIndex = currentState.ticketList.indexOf(event.ticket);
         if (ticketIndex == -1 ||
@@ -59,9 +54,7 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
 
           yield newState;
         }
-      } else {
-        player.play(1);
-      }
+      } else {}
     }
     if (event is ScannedEvent) {
       if (event.data.trim().length == 8) {
