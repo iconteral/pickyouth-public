@@ -38,8 +38,10 @@ class ReturnBloc extends Bloc<ReturnEvent, ReturnState> {
       Response response = await client.post("/return", data: formData);
       if (response.data.toString() == 'wrong') {
         yield FailedReturnState();
-      } else {
+      } else if (response.data.toString() == 'ok') {
         yield SuccessfulReturnState();
+      } else {
+        yield AlreadyReturnState();
       }
     }
   }

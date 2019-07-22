@@ -129,6 +129,15 @@ class ReturnPageState extends State {
                 backgroundColor: Colors.green,
               ));
             }
+            if (state is AlreadyReturnState) {
+              scaffold.showSnackBar(SnackBar(
+                content: Text(
+                  "该座未占",
+                  style: TextStyle(color: Colors.black),
+                ),
+                backgroundColor: Colors.yellow,
+              ));
+            }
           },
           child: RaisedButton(
             child: Text("退座"),
