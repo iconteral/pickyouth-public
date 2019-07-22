@@ -10,7 +10,7 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.db import connection
-from api.models import Ticket
+from .models import Ticket
 
 SEAT_REGEX = r'([a-zA-Z]+)(\d+_\d+)'
 
