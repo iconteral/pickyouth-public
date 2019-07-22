@@ -1,11 +1,11 @@
 import datetime
-import hashlib
+# import hashlib
 import pytz
 import re
 
-import qrcode
+# import qrcode
 
-from django.utils import timezone
+# from django.utils import timezone
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
