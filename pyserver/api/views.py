@@ -89,7 +89,7 @@ def check_ticket(request, password):
         ticket.checktime = now()
         ticket.save()
         for i in range(ticket.number):
-            t = re.findall(SEAT_REGEX, ticket.__dict__['t'+str(i+1)])[0]
+            t = re.findall(SEAT_REGEX, ticket.__dict__['t'+str(i+1)])
             check_seat(t[0], t[1])
         data['status'] = 'ok'
         data['message'] = 'ticket has been checked successfully.'
