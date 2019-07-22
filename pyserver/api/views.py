@@ -159,7 +159,7 @@ def api_login(request):
 def used_count(request):
     '''return entry people number'''
     data = {}
-    for section in ['vip', 'b', 'c', 'e', 'f']:
+    for section in ['vip', 'b', 'c', 'd', 'e', 'f']:
         data[section] = count_section(section)
     return JsonResponse(data)
 
