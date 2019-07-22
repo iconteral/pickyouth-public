@@ -21,6 +21,11 @@ def check_seat(section, seat):
             s=section, seat=seat))
 
 
+def count_section(section):
+    with connection.cursor() as cursor:
+        return cursor.execute("SELECT COUNT(*) FROM tableq{s} WHERE ypzt=1".format(s=section))[0]
+
+
 def now():
     return datetime.datetime.utcnow().replace(tzinfo=pytz.utc).astimezone(pytz.timezone('Asia/Shanghai')).strftime("%Y-%m-%d %H:%M:%S")
 
@@ -151,14 +156,13 @@ def api_login(request):
 @login_required
 def used_count(request):
     '''return entry people number'''
-    count = 0
-    try:
-        used = Ticket.objects.filter(ypzt=1)
-        for ticket in used:
-            count += ticket.number
-    except:
-        return HttpResponse('wrong')
-    return HttpResponse(count)
+    data = {}
+    for section in ['vip', 'b', 'c', 'e', 'f']:
+        try:
+            data[section] = count_section(section)
+        except:
+            return HttpResponse('wrong')
+    return JsonResponse(data)
 
 
 # @login_required
