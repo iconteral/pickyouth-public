@@ -73,6 +73,10 @@ def ticket_info(request, password):
 
 
 @login_required
+def
+
+
+@login_required
 def check_ticket(request, password):
     '''Check in and mark as checked'''
     data = {}

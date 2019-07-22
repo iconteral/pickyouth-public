@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:app/blocs/login_bolc.dart';
 import 'package:app/states/login_states.dart';
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
@@ -10,7 +11,7 @@ class ReturnBloc extends Bloc<ReturnEvent, ReturnState> {
   ReturnState get initialState => InitialReturnState();
 
   StreamSubscription subscription;
-  ReturnBloc loginBloc;
+  LoginBloc loginBloc;
   Dio client;
 
   ReturnBloc(this.loginBloc) {
