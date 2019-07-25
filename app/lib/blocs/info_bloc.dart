@@ -32,18 +32,30 @@ class InfoBloc extends Bloc<InfoEvent, InfoState> {
   Stream<InfoState> mapEventToState(
     InfoEvent event,
   ) async* {
-    if (event is PasswordEntered) {
-      if (event.password.trim().length == 8) {
-        var ticket = Ticket(uid: int.parse(event.password));
+    if (event is Entered) {
+      if (event.query.trim().length == 8) {
+        var ticket = Ticket(uid: int.parse(event.query));
         await ticket.init(client, check: false);
-        yield TicketInfoState(ticket: ticket);
+        if (ticket.isVaild) {
+          yield TicketInfoState(ticket: ticket);
+        } else {
+          yield TicketInfoState(
+              ticket: (currentState as TicketInfoState).ticket, error: true);
+        }
       }
-    }
-    if (event is PhoneEntered) {
-      if (event.phoneNumber.trim().length == 11) {
-        var ticket = Ticket(phoneNumber: int.parse(event.phoneNumber));
+      if (event.query.trim().length == 11) {
+        var ticket = Ticket(phoneNumber: int.parse(event.query));
         await ticket.init(client, check: false);
-        yield TicketInfoState(ticket: ticket);
+        if (ticket.isVaild) {
+          yield TicketInfoState(ticket: ticket);
+        } else {
+          yield TicketInfoState(
+              ticket: (currentState as TicketInfoState).ticket, error: true);
+        }
+      }
+      if (event.query.trim().length != 11 && event.query.trim().length != 8) {
+        yield TicketInfoState(
+            ticket: (currentState as TicketInfoState).ticket, error: true);
       }
     }
   }

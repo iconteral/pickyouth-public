@@ -41,6 +41,8 @@ void main() async {
       )
     ],
     child: MaterialApp(
+      theme:
+          ThemeData(primaryColor: Colors.pink, accentColor: Colors.pinkAccent),
       title: 'Reply 9102 检票系统',
       home: LoginPage(),
     ),

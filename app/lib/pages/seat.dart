@@ -42,10 +42,11 @@ class SeatPage extends StatelessWidget {
     return BlocListener(
       bloc: BlocProvider.of<SeatBloc>(context),
       listener: (context, state) {
-        controller?.loadUrl(state.currespondingUrl);
+        controller?.loadUrl((state as Loaded).currespondingUrl +
+            "?pass=5d5c86660eeb4235344c00ef67d6514e");
       },
       child: WebView(
-        initialUrl: url,
+        initialUrl: url + "?pass=5d5c86660eeb4235344c00ef67d6514e",
         onWebViewCreated: (WebViewController c) => controller = c,
         javascriptMode: JavascriptMode.unrestricted,
       ),
@@ -54,6 +55,14 @@ class SeatPage extends StatelessWidget {
 
   Widget _buildSeatView(BuildContext context, Loaded state) {
     List<String> sections = ["vip", "B", "C", "D", "E", "F"];
+    Map<String, int> total = {
+      "vip": 50,
+      'B': 80,
+      'C': 88,
+      'D': 15 * 8,
+      'E': 80,
+      'F': 49
+    };
     var columns = sections.map((section) {
       return Expanded(
         child: Column(
@@ -63,7 +72,8 @@ class SeatPage extends StatelessWidget {
               onPressed: () => BlocProvider.of<SeatBloc>(context)
                   .dispatch(SwitchSectionEvent(section)),
             ),
-            Text(state.count[section.toLowerCase()].toString())
+            Text((total[section] - state.count[section.toLowerCase()])
+                .toString())
           ],
         ),
       );

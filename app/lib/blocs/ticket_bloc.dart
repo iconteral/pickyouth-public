@@ -36,7 +36,7 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
     if (event is AddTicketEvent) {
       await event.ticket.init(client);
       if (event.ticket.isVaild) {
-        if (event.ticket.justChecked) {
+        if (event.ticket.justChecked && event.ticket.ticketNumber != 0) {
           Vibration.vibrate(duration: 1000);
         }
         int ticketIndex = currentState.ticketList.indexOf(event.ticket);
