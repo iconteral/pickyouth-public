@@ -15,8 +15,8 @@ Buy your ticket first.
 
 ## About this program
 This program includs two parts:
-- [scannerapp(Client)](https://github.com/abrasumente233/pickyouth/tree/master/scannerapp "scannerapp(Client)")
-- [PYServer(Server)](https://github.com/abrasumente233/pickyouth/tree/master/pyserver "PYServer(Servers)")
+- [scannerapp(Client)](/scannerapp "scannerapp(Client)")
+- [PYServer(Server)](/pyserver "PYServer(Servers)")
 
 
 ## Thanks
